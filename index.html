@@ -13,29 +13,30 @@
             --panel-border: rgba(0, 255, 170, 0.5);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Segoe UI', 'Arial', sans-serif; 
+        }
 
         body { 
             margin: 0; 
-            font-family: 'Segoe UI', sans-serif; 
-            /* CONFIGURAÇÃO DO FUNDO - Altere o nome do arquivo aqui se necessário */
-            background: url('fundo-arc.jpg') no-repeat center center fixed; 
-            background-size: cover;
+            background: linear-gradient(135deg, #0a0a2a 0%, #1a1a3a 50%, #0a2a2a 100%);
             color: #fff; 
             overflow: hidden; 
+            height: 100vh;
         }
 
-        /* Camada para garantir leitura dos textos sobre o fundo */
         #layout { 
             display: flex; 
             width: 100vw; 
             height: 100vh; 
             padding: 15px; 
             gap: 15px; 
-            background: rgba(0, 0, 0, 0.2); /* Escurece levemente a imagem de fundo */
+            background: rgba(0, 0, 0, 0.6);
         }
 
-        /* Painéis Laterais com efeito Glassmorphism (Vidro) */
         #leftPanel, #rightPanel { 
             width: 300px; 
             background: var(--bg-overlay); 
@@ -45,29 +46,31 @@
             display: flex; 
             flex-direction: column; 
             gap: 15px;
-            backdrop-filter: blur(15px); /* Efeito de desfoque no fundo */
+            backdrop-filter: blur(15px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
         }
 
-        /* Container do Jogo Centralizado */
         #gameContainer { 
             flex: 1; 
             position: relative; 
             border: 2px solid var(--panel-border);
             border-radius: 20px; 
-            background: rgba(0, 0, 0, 0.3); /* Mais transparente para ver o logo da ARC */
+            background: rgba(0, 0, 0, 0.4);
             overflow: hidden;
-            backdrop-filter: blur(2px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 0;
         }
 
         canvas#game { 
             width: 100%; 
             height: 100%; 
             display: block; 
-            background: transparent; 
+            background: transparent;
         }
 
-        /* Estilização de HUD e UI */
         .arc-logo {
             text-align: center;
             padding-bottom: 15px;
@@ -75,11 +78,12 @@
         }
 
         .arc-logo h2 {
-            font-size: 22px;
+            font-size: 24px;
             background: linear-gradient(45deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(0, 255, 170, 0.3);
         }
 
         .stats-box {
@@ -87,15 +91,52 @@
             padding: 15px;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
         }
 
-        .row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 14px; }
-        .val { color: var(--primary); font-family: 'Courier New', monospace; font-weight: bold; }
+        .stats-box.connected {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 255, 170, 0.2);
+        }
 
-        /* Botões Estilizados */
+        .row { 
+            display: flex; 
+            justify-content: space-between; 
+            margin: 8px 0; 
+            font-size: 14px; 
+            align-items: center;
+        }
+
+        .val { 
+            color: var(--primary); 
+            font-family: 'Courier New', monospace; 
+            font-weight: bold; 
+            font-size: 13px;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status.connected {
+            background: rgba(0, 255, 170, 0.2);
+            color: var(--primary);
+        }
+
+        .status.disconnected {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff4444;
+        }
+
         button {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border-radius: 10px;
             border: none;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -104,122 +145,891 @@
             cursor: pointer;
             transition: 0.3s;
             text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 1px;
         }
 
         button:hover:not(:disabled) {
             transform: scale(1.02);
-            box-shadow: 0 0 15px var(--primary);
+            box-shadow: 0 0 20px var(--primary);
         }
 
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button:disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed;
+            background: linear-gradient(135deg, #666, #888);
+        }
 
-        /* Calculadora */
         .calc-screen {
-            background: #000;
+            background: rgba(0, 0, 0, 0.8);
             color: var(--primary);
             padding: 15px;
             text-align: right;
-            font-size: 20px;
+            font-size: 22px;
             border-radius: 8px;
             margin-bottom: 10px;
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
+            min-height: 60px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            border: 1px solid rgba(0, 255, 170, 0.3);
         }
 
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .calc-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 8px; 
+        }
+
         .calc-btn {
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 12px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .calc-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .calc-btn.operator {
+            background: rgba(255, 165, 0, 0.3);
+            color: #ffaa00;
+        }
+
+        .calc-btn.equals {
+            background: rgba(0, 255, 170, 0.3);
+            color: var(--primary);
+        }
+
+        .calc-btn.clear {
+            background: rgba(255, 68, 68, 0.3);
+            color: #ff4444;
+        }
+
+        .game-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid var(--panel-border);
+            backdrop-filter: blur(10px);
+            display: none;
+            z-index: 100;
+        }
+
+        .game-overlay h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .fps-counter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: var(--primary);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        input[type="range"] {
+            width: 100px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+        }
+
+        @media (max-width: 1200px) {
+            #layout {
+                flex-direction: column;
+                height: auto;
+                overflow-y: auto;
+            }
+            
+            #leftPanel, #rightPanel {
+                width: 100%;
+                max-height: 300px;
+            }
+            
+            #gameContainer {
+                min-height: 500px;
+            }
         }
     </style>
 </head>
 <body>
-
     <div id="layout">
+        <!-- Painel Esquerdo - Controle e Status -->
         <div id="leftPanel">
             <div class="arc-logo">
-                <h2>ARC SHOOTER</h2>
+                <h2>🎯 ARC BUBBLE SHOOTER</h2>
+                <p style="font-size: 12px; opacity: 0.7;">Pro Edition v3.0</p>
             </div>
             
-            <div class="stats-box">
-                <div class="row"><span>WALLET:</span> <span class="val">0x...AFF4</span></div>
-                <div class="row"><span>USDC:</span> <span class="val">1,250.00</span></div>
-                <div class="row"><span>SCORE:</span> <span class="val" id="score">0</span></div>
+            <div class="stats-box" id="statsBox">
+                <div class="row">
+                    <span>STATUS:</span>
+                    <span class="status disconnected" id="statusText">Disconnected</span>
+                </div>
+                <div class="row">
+                    <span>WALLET:</span>
+                    <span class="val" id="walletAddress">0x...0000</span>
+                </div>
+                <div class="row">
+                    <span>BALANCE:</span>
+                    <span class="val" id="balanceText">0 ETH</span>
+                </div>
+                <div class="row">
+                    <span>NETWORK:</span>
+                    <span class="val" id="networkText">Unknown</span>
+                </div>
+                <div class="row">
+                    <span>SCORE:</span>
+                    <span class="val" id="scoreText">0</span>
+                </div>
+                <div class="row">
+                    <span>LEVEL:</span>
+                    <span class="val" id="levelText">1</span>
+                </div>
+                <div class="row">
+                    <span>BUBBLES:</span>
+                    <span class="val" id="bubblesText">0</span>
+                </div>
             </div>
 
-            <button id="btnConnect">1. Connect Wallet</button>
-            <button id="btnStart" disabled>2. Start Game</button>
+            <button id="btnConnect">🔗 CONNECT WALLET</button>
+            <button id="btnStart" disabled>🚀 START GAME</button>
+            <button id="btnReset" disabled>🔄 RESET GAME</button>
             
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <p style="font-size: 12px; color: var(--secondary); margin-bottom: 10px;">GAME CONTROLS</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button style="padding: 8px;" onclick="moveCannon('left')">← LEFT</button>
+                    <button style="padding: 8px;" onclick="moveCannon('right')">→ RIGHT</button>
+                </div>
+                <p style="font-size: 11px; opacity: 0.6; margin-top: 10px; text-align: center;">
+                    Click or use arrow keys to aim
+                </p>
+            </div>
+
             <div style="margin-top: auto; font-size: 10px; text-align: center; opacity: 0.6;">
-                ARC NETWORK TESTNET v3.0
+                ARC NETWORK TESTNET • Powered by Ethers.js
             </div>
         </div>
 
+        <!-- Container do Jogo -->
         <div id="gameContainer">
             <canvas id="game"></canvas>
-            <div style="position: absolute; top: 10px; right: 10px; font-size: 12px; color: var(--primary);">FPS: 60</div>
+            <div class="fps-counter" id="fpsCounter">FPS: 60</div>
+            
+            <div class="game-overlay" id="startOverlay">
+                <h3>🎮 ARC BUBBLE SHOOTER</h3>
+                <p>Connect your wallet and start playing!</p>
+                <p style="margin: 20px 0; font-size: 14px; opacity: 0.8;">
+                    Shoot matching bubbles to earn points.<br>
+                    Clear the board to advance levels.
+                </p>
+                <button onclick="hideStartOverlay()" style="width: 200px; margin-top: 10px;">
+                    GOT IT!
+                </button>
+            </div>
         </div>
 
+        <!-- Painel Direito - Calculadora e Configurações -->
         <div id="rightPanel">
-            <div style="text-align: center; color: var(--secondary); font-weight: bold;">CALCULATOR</div>
-            <div class="calc-screen" id="display">0</div>
+            <div style="text-align: center; color: var(--secondary); font-weight: bold; font-size: 16px;">
+                🧮 CALCULATOR
+            </div>
+            <div class="calc-screen" id="calcDisplay">0</div>
             <div class="calc-grid">
-                <button class="calc-btn" onclick="add('7')">7</button>
-                <button class="calc-btn" onclick="add('8')">8</button>
-                <button class="calc-btn" onclick="add('9')">9</button>
-                <button class="calc-btn" style="background: orange;">/</button>
-                <button class="calc-btn" onclick="add('4')">4</button>
-                <button class="calc-btn" onclick="add('5')">5</button>
-                <button class="calc-btn" onclick="add('6')">6</button>
-                <button class="calc-btn" style="background: orange;">*</button>
-                <button class="calc-btn" onclick="reset()" style="grid-column: span 2; background: #ff4444;">C</button>
-                <button class="calc-btn" onclick="calc()" style="grid-column: span 2; background: var(--primary); color: #000;">=</button>
+                <button class="calc-btn" onclick="calcInput('7')">7</button>
+                <button class="calc-btn" onclick="calcInput('8')">8</button>
+                <button class="calc-btn" onclick="calcInput('9')">9</button>
+                <button class="calc-btn operator" onclick="calcInput('/')">/</button>
+                
+                <button class="calc-btn" onclick="calcInput('4')">4</button>
+                <button class="calc-btn" onclick="calcInput('5')">5</button>
+                <button class="calc-btn" onclick="calcInput('6')">6</button>
+                <button class="calc-btn operator" onclick="calcInput('*')">×</button>
+                
+                <button class="calc-btn" onclick="calcInput('1')">1</button>
+                <button class="calc-btn" onclick="calcInput('2')">2</button>
+                <button class="calc-btn" onclick="calcInput('3')">3</button>
+                <button class="calc-btn operator" onclick="calcInput('-')">-</button>
+                
+                <button class="calc-btn" onclick="calcInput('0')">0</button>
+                <button class="calc-btn" onclick="calcInput('.')">.</button>
+                <button class="calc-btn clear" onclick="calcClear()">C</button>
+                <button class="calc-btn operator" onclick="calcInput('+')">+</button>
+                
+                <button class="calc-btn equals" onclick="calcEquals()" style="grid-column: span 2;">=</button>
+                <button class="calc-btn clear" onclick="calcBackspace()" style="grid-column: span 2;">⌫ BACK</button>
             </div>
 
-            <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                <p style="font-size: 12px; color: var(--secondary);">CUSTOMIZATION</p>
+            <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                <p style="font-size: 14px; color: var(--secondary); margin-bottom: 15px;">⚙️ CUSTOMIZATION</p>
+                
+                <div class="row">
+                    <span>Bubble Speed:</span>
+                    <input type="range" id="speedSlider" min="1" max="10" value="5">
+                </div>
+                <div class="row">
+                    <span>Game Volume:</span>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="50">
+                </div>
                 <div class="row">
                     <span>Opacity:</span>
-                    <input type="range" style="width: 100px;">
+                    <input type="range" id="opacitySlider" min="20" max="100" value="75">
                 </div>
+                
+                <div style="margin-top: 20px;">
+                    <button onclick="saveSettings()" style="padding: 10px;">💾 SAVE SETTINGS</button>
+                </div>
+            </div>
+
+            <div style="margin-top: auto; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <p style="font-size: 12px; opacity: 0.7; text-align: center;">
+                    Press SPACE to shoot • ESC to pause
+                </p>
             </div>
         </div>
     </div>
 
     <script>
-        // Lógica Básica da UI
-        const display = document.getElementById('display');
-        function add(v) { if(display.innerText === '0') display.innerText = v; else display.innerText += v; }
-        function reset() { display.innerText = '0'; }
-        function calc() { try { display.innerText = eval(display.innerText); } catch { display.innerText = "Error"; } }
+        // ========== VARIÁVEIS GLOBAIS ==========
+        let provider = null;
+        let signer = null;
+        let userAddress = null;
+        let isConnected = false;
+        let isGameRunning = false;
+        let score = 0;
+        let level = 1;
+        let bubbles = 0;
+        
+        // Configuração da rede ARC (ajuste conforme necessário)
+        const arcNetwork = {
+            chainId: '0x1A4', // 420 em hexadecimal - Optimism Goerli
+            chainName: 'ARC Network Testnet',
+            nativeCurrency: {
+                name: 'ETH',
+                symbol: 'ETH',
+                decimals: 18
+            },
+            rpcUrls: ['https://sepolia-rollup.arbitrum.io/rpc'],
+            blockExplorerUrls: ['https://sepolia.arbiscan.io/']
+        };
 
-        // Inicialização do Canvas
+        // ========== ELEMENTOS DA UI ==========
+        const elements = {
+            btnConnect: document.getElementById('btnConnect'),
+            btnStart: document.getElementById('btnStart'),
+            btnReset: document.getElementById('btnReset'),
+            walletAddress: document.getElementById('walletAddress'),
+            balanceText: document.getElementById('balanceText'),
+            networkText: document.getElementById('networkText'),
+            statusText: document.getElementById('statusText'),
+            statsBox: document.getElementById('statsBox'),
+            scoreText: document.getElementById('scoreText'),
+            levelText: document.getElementById('levelText'),
+            bubblesText: document.getElementById('bubblesText'),
+            calcDisplay: document.getElementById('calcDisplay'),
+            fpsCounter: document.getElementById('fpsCounter'),
+            startOverlay: document.getElementById('startOverlay')
+        };
+
+        // ========== CONEXÃO COM METAMASK ==========
+        async function connectWallet() {
+            try {
+                // Verificar se MetaMask está instalado
+                if (!window.ethereum) {
+                    alert('MetaMask não encontrado! Por favor, instale a extensão.');
+                    return;
+                }
+
+                // Solicitar conexão
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                
+                // Criar provider e signer
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+                userAddress = accounts[0];
+                
+                // Verificar rede
+                const network = await provider.getNetwork();
+                const chainIdHex = '0x' + network.chainId.toString(16);
+                
+                if (chainIdHex !== arcNetwork.chainId) {
+                    await switchToArcNetwork();
+                }
+                
+                // Atualizar UI
+                updateUI(true);
+                await updateBalance();
+                
+                console.log('✅ Carteira conectada:', userAddress);
+                
+            } catch (error) {
+                console.error('❌ Erro na conexão:', error);
+                alert(`Erro: ${error.message}`);
+            }
+        }
+
+        // ========== TROCAR PARA REDE ARC ==========
+        async function switchToArcNetwork() {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: arcNetwork.chainId }],
+                });
+            } catch (switchError) {
+                // Se a rede não existir, adicioná-la
+                if (switchError.code === 4902) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [arcNetwork],
+                        });
+                    } catch (addError) {
+                        console.error('Erro ao adicionar rede:', addError);
+                        alert('Erro ao adicionar rede ARC. Adicione manualmente.');
+                    }
+                } else {
+                    console.error('Erro ao trocar rede:', switchError);
+                }
+            }
+        }
+
+        // ========== ATUALIZAR UI ==========
+        function updateUI(connected) {
+            isConnected = connected;
+            
+            if (connected) {
+                // Formatar endereço da carteira
+                const shortAddress = `${userAddress.substring(0,6)}...${userAddress.substring(38)}`;
+                elements.walletAddress.textContent = shortAddress;
+                elements.statusText.textContent = 'Connected';
+                elements.statusText.className = 'status connected';
+                elements.statsBox.classList.add('connected');
+                elements.btnConnect.textContent = '✅ CONNECTED';
+                elements.btnConnect.disabled = true;
+                elements.btnStart.disabled = false;
+                elements.networkText.textContent = 'ARC Testnet';
+            } else {
+                elements.walletAddress.textContent = '0x...0000';
+                elements.statusText.textContent = 'Disconnected';
+                elements.statusText.className = 'status disconnected';
+                elements.statsBox.classList.remove('connected');
+                elements.btnConnect.textContent = '🔗 CONNECT WALLET';
+                elements.btnConnect.disabled = false;
+                elements.btnStart.disabled = true;
+                elements.btnReset.disabled = true;
+                elements.balanceText.textContent = '0 ETH';
+                elements.networkText.textContent = 'Unknown';
+            }
+        }
+
+        // ========== ATUALIZAR SALDO ==========
+        async function updateBalance() {
+            if (!provider || !userAddress) return;
+            
+            try {
+                const balance = await provider.getBalance(userAddress);
+                const ethBalance = ethers.utils.formatEther(balance);
+                elements.balanceText.textContent = `${parseFloat(ethBalance).toFixed(4)} ETH`;
+            } catch (error) {
+                console.error('Erro ao obter saldo:', error);
+            }
+        }
+
+        // ========== LÓGICA DO JOGO (BUBBLE SHOOTER) ==========
         const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
+        
+        // Variáveis do jogo
+        let gameObjects = [];
+        let cannonAngle = 0;
+        let nextBubbleColor = getRandomColor();
+        let fps = 60;
+        let lastFrameTime = 0;
+        let frameCount = 0;
+        let lastFpsUpdate = 0;
 
-        function resize() {
+        // Configuração do canvas
+        function resizeCanvas() {
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
         }
-        window.addEventListener('resize', resize);
-        resize();
 
-        // O SEU CÓDIGO DE LÓGICA DAS BOLHAS DEVE ENTRAR AQUI
-        // Exemplo visual:
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // ctx.drawImage(...) se quiser desenhar algo específico no canvas
-            requestAnimationFrame(draw);
+        // Classe Bubble
+        class Bubble {
+            constructor(x, y, radius, color, dx = 0, dy = 0) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.color = color;
+                this.dx = dx;
+                this.dy = dy;
+                this.active = true;
+            }
+            
+            draw() {
+                if (!this.active) return;
+                
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                
+                // Efeito de brilho
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius * 0.7, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.fill();
+            }
+            
+            update() {
+                if (!this.active) return;
+                
+                this.x += this.dx;
+                this.y += this.dy;
+                
+                // Colisão com paredes
+                if (this.x - this.radius < 0 || this.x + this.radius > canvas.width) {
+                    this.dx *= -0.8; // Reduz velocidade
+                }
+                
+                // Colisão com teto
+                if (this.y - this.radius < 0) {
+                    this.y = this.radius;
+                    this.dy *= -0.8;
+                }
+                
+                // Colisão com chão
+                if (this.y + this.radius > canvas.height) {
+                    this.y = canvas.height - this.radius;
+                    this.dy *= -0.8;
+                    this.dx *= 0.9; // Fricção
+                }
+                
+                // Gravidade
+                this.dy += 0.1;
+                
+                // Desacelerar
+                this.dx *= 0.99;
+                this.dy *= 0.99;
+                
+                // Remover bolhas muito lentas
+                if (Math.abs(this.dx) < 0.1 && Math.abs(this.dy) < 0.1 && this.y === canvas.height - this.radius) {
+                    this.active = false;
+                }
+            }
         }
-        draw();
 
-        document.getElementById('btnConnect').onclick = () => {
-            alert("Conectando à MetaMask...");
-            document.getElementById('btnStart').disabled = false;
-        };
+        // Funções auxiliares
+        function getRandomColor() {
+            const colors = [
+                '#FF4444', '#44FF44', '#4444FF', 
+                '#FFFF44', '#FF44FF', '#44FFFF',
+                '#FFAA00', '#AA00FF', '#00FFAA'
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function drawCannon() {
+            const centerX = canvas.width / 2;
+            const bottomY = canvas.height - 50;
+            const length = 60;
+            
+            // Base do canhão
+            ctx.beginPath();
+            ctx.arc(centerX, bottomY, 30, 0, Math.PI * 2);
+            ctx.fillStyle = '#333';
+            ctx.fill();
+            
+            // Cano do canhão
+            ctx.save();
+            ctx.translate(centerX, bottomY);
+            ctx.rotate(cannonAngle);
+            
+            ctx.beginPath();
+            ctx.rect(-10, -10, length, 20);
+            ctx.fillStyle = '#666';
+            ctx.fill();
+            
+            ctx.restore();
+            
+            // Próxima bolha
+            ctx.beginPath();
+            ctx.arc(centerX, bottomY - 80, 25, 0, Math.PI * 2);
+            ctx.fillStyle = nextBubbleColor;
+            ctx.fill();
+        }
+
+        function shootBubble() {
+            if (!isGameRunning) return;
+            
+            const centerX = canvas.width / 2;
+            const bottomY = canvas.height - 50;
+            const speed = 10;
+            
+            const bubble = new Bubble(
+                centerX,
+                bottomY - 30,
+                20,
+                nextBubbleColor,
+                Math.sin(cannonAngle) * speed,
+                -Math.cos(cannonAngle) * speed
+            );
+            
+            gameObjects.push(bubble);
+            bubbles++;
+            elements.bubblesText.textContent = bubbles;
+            
+            // Nova bolha para próxima rodada
+            nextBubbleColor = getRandomColor();
+        }
+
+        function moveCannon(direction) {
+            if (!isGameRunning) return;
+            
+            const angleStep = 0.1;
+            if (direction === 'left') {
+                cannonAngle = Math.max(cannonAngle - angleStep, -Math.PI/2);
+            } else if (direction === 'right') {
+                cannonAngle = Math.min(cannonAngle + angleStep, Math.PI/2);
+            }
+        }
+
+        function updateScore(points) {
+            score += points;
+            elements.scoreText.textContent = score;
+            
+            // Subir de nível a cada 100 pontos
+            const newLevel = Math.floor(score / 100) + 1;
+            if (newLevel > level) {
+                level = newLevel;
+                elements.levelText.textContent = level;
+                alert(`🎉 Level Up! Now at level ${level}`);
+            }
+        }
+
+        function gameLoop(currentTime) {
+            // Calcular FPS
+            frameCount++;
+            if (currentTime - lastFpsUpdate >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastFpsUpdate = currentTime;
+                elements.fpsCounter.textContent = `FPS: ${fps}`;
+            }
+            
+            // Limpar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Desenhar fundo gradiente
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, 'rgba(10, 10, 40, 0.3)');
+            gradient.addColorStop(1, 'rgba(20, 40, 60, 0.3)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            if (isGameRunning) {
+                // Atualizar e desenhar bolhas
+                gameObjects.forEach(bubble => bubble.update());
+                gameObjects = gameObjects.filter(bubble => bubble.active);
+                
+                // Desenhar elementos do jogo
+                gameObjects.forEach(bubble => bubble.draw());
+                drawCannon();
+                
+                // Verificar colisões simples
+                for (let i = 0; i < gameObjects.length; i++) {
+                    for (let j = i + 1; j < gameObjects.length; j++) {
+                        const b1 = gameObjects[i];
+                        const b2 = gameObjects[j];
+                        
+                        const dx = b2.x - b1.x;
+                        const dy = b2.y - b1.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < b1.radius + b2.radius && b1.color === b2.color) {
+                            // Colisão com mesma cor - pontuar
+                            updateScore(10);
+                            b1.active = false;
+                            b2.active = false;
+                        }
+                    }
+                }
+            } else {
+                // Tela de início
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = 'white';
+                ctx.font = '30px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('ARC BUBBLE SHOOTER', canvas.width/2, canvas.height/2 - 50);
+                
+                ctx.font = '16px Arial';
+                ctx.fillText('Connect wallet and press START', canvas.width/2, canvas.height/2);
+                
+                if (isConnected) {
+                    ctx.fillStyle = '#00ffaa';
+                    ctx.fillText('✅ Wallet Connected!', canvas.width/2, canvas.height/2 + 40);
+                } else {
+                    ctx.fillStyle = '#ff4444';
+                    ctx.fillText('❌ Connect Wallet First', canvas.width/2, canvas.height/2 + 40);
+                }
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // ========== CONTROLES DO JOGO ==========
+        function startGame() {
+            if (!isConnected) {
+                alert('Please connect your wallet first!');
+                return;
+            }
+            
+            isGameRunning = true;
+            elements.btnStart.textContent = '⏸️ PAUSE GAME';
+            elements.btnStart.onclick = pauseGame;
+            elements.btnReset.disabled = false;
+            elements.startOverlay.style.display = 'none';
+            
+            // Reiniciar variáveis
+            score = 0;
+            level = 1;
+            bubbles = 0;
+            gameObjects = [];
+            
+            updateScore(0);
+            elements.levelText.textContent = '1';
+            elements.bubblesText.textContent = '0';
+        }
+
+        function pauseGame() {
+            isGameRunning = false;
+            elements.btnStart.textContent = '▶️ RESUME GAME';
+            elements.btnStart.onclick = startGame;
+        }
+
+        function resetGame() {
+            isGameRunning = false;
+            score = 0;
+            level = 1;
+            bubbles = 0;
+            gameObjects = [];
+            cannonAngle = 0;
+            
+            updateScore(0);
+            elements.levelText.textContent = '1';
+            elements.bubblesText.textContent = '0';
+            elements.btnStart.textContent = '🚀 START GAME';
+            elements.btnStart.onclick = startGame;
+            elements.btnReset.disabled = true;
+        }
+
+        // ========== CALCULADORA ==========
+        function calcInput(value) {
+            if (elements.calcDisplay.textContent === '0' || elements.calcDisplay.textContent === 'Error') {
+                elements.calcDisplay.textContent = value;
+            } else {
+                elements.calcDisplay.textContent += value;
+            }
+        }
+
+        function calcClear() {
+            elements.calcDisplay.textContent = '0';
+        }
+
+        function calcBackspace() {
+            if (elements.calcDisplay.textContent.length > 1) {
+                elements.calcDisplay.textContent = elements.calcDisplay.textContent.slice(0, -1);
+            } else {
+                elements.calcDisplay.textContent = '0';
+            }
+        }
+
+        function calcEquals() {
+            try {
+                // Substituir símbolos para eval
+                let expression = elements.calcDisplay.textContent
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/');
+                
+                // Validar expressão
+                if (!/^[0-9+\-*/.()\s]+$/.test(expression)) {
+                    throw new Error('Invalid expression');
+                }
+                
+                const result = eval(expression);
+                elements.calcDisplay.textContent = Number.isFinite(result) ? result : 'Error';
+            } catch (error) {
+                elements.calcDisplay.textContent = 'Error';
+            }
+        }
+
+        // ========== CONFIGURAÇÕES ==========
+        function saveSettings() {
+            const speed = document.getElementById('speedSlider').value;
+            const volume = document.getElementById('volumeSlider').value;
+            const opacity = document.getElementById('opacitySlider').value;
+            
+            // Aplicar opacidade aos painéis
+            document.getElementById('leftPanel').style.opacity = opacity / 100;
+            document.getElementById('rightPanel').style.opacity = opacity / 100;
+            
+            // Salvar no localStorage
+            localStorage.setItem('arcGameSettings', JSON.stringify({
+                speed,
+                volume,
+                opacity,
+                saved: new Date().toISOString()
+            }));
+            
+            alert('Settings saved!');
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('arcGameSettings');
+            if (saved) {
+                const settings = JSON.parse(saved);
+                document.getElementById('speedSlider').value = settings.speed || 5;
+                document.getElementById('volumeSlider').value = settings.volume || 50;
+                document.getElementById('opacitySlider').value = settings.opacity || 75;
+                
+                // Aplicar opacidade
+                document.getElementById('leftPanel').style.opacity = settings.opacity / 100;
+                document.getElementById('rightPanel').style.opacity = settings.opacity / 100;
+            }
+        }
+
+        // ========== EVENT LISTENERS ==========
+        function setupEventListeners() {
+            // Botões principais
+            elements.btnConnect.addEventListener('click', connectWallet);
+            elements.btnStart.addEventListener('click', startGame);
+            elements.btnReset.addEventListener('click', resetGame);
+            
+            // Controles de teclado
+            document.addEventListener('keydown', (e) => {
+                if (!isGameRunning) return;
+                
+                switch(e.key) {
+                    case 'ArrowLeft':
+                        moveCannon('left');
+                        break;
+                    case 'ArrowRight':
+                        moveCannon('right');
+                        break;
+                    case ' ':
+                    case 'Spacebar':
+                        shootBubble();
+                        e.preventDefault();
+                        break;
+                    case 'Escape':
+                        if (isGameRunning) pauseGame();
+                        else startGame();
+                        break;
+                }
+            });
+            
+            // Controles de mouse/touch no canvas
+            canvas.addEventListener('click', shootBubble);
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isGameRunning) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const centerX = canvas.width / 2;
+                
+                // Calcular ângulo baseado na posição do mouse
+                cannonAngle = (x - centerX) / 100;
+                cannonAngle = Math.max(-Math.PI/2, Math.min(Math.PI/2, cannonAngle));
+            });
+            
+            // Detectar mudanças na MetaMask
+            if (window.ethereum) {
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    if (accounts.length === 0) {
+                        // Desconectado
+                        provider = null;
+                        signer = null;
+                        userAddress = null;
+                        updateUI(false);
+                        pauseGame();
+                    } else {
+                        // Conta trocada
+                        userAddress = accounts[0];
+                        updateUI(true);
+                        updateBalance();
+                    }
+                });
+                
+                window.ethereum.on('chainChanged', () => {
+                    location.reload();
+                });
+            }
+        }
+
+        // ========== FUNÇÕES DE INICIALIZAÇÃO ==========
+        function hideStartOverlay() {
+            elements.startOverlay.style.display = 'none';
+        }
+
+        function init() {
+            // Configurar canvas
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Carregar configurações salvas
+            loadSettings();
+            
+            // Configurar event listeners
+            setupEventListeners();
+            
+            // Iniciar loop do jogo
+            requestAnimationFrame(gameLoop);
+            
+            // Mostrar overlay inicial
+            elements.startOverlay.style.display = 'block';
+            
+            // Verificar se já está conectado
+            if (window.ethereum && window.ethereum.selectedAddress) {
+                connectWallet();
+            }
+            
+            console.log('🎮 ARC Bubble Shooter inicializado!');
+        }
+
+        // ========== INICIAR APLICAÇÃO ==========
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
