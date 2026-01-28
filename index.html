@@ -3,1033 +3,2203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARC Bubble Shooter - Pro Edition</title>
+    <title>ARC Bubble Shooter</title>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <style>
         :root { 
             --primary: #00ffaa; 
             --secondary: #00aaff; 
-            --bg-overlay: rgba(10, 10, 10, 0.75); 
-            --panel-border: rgba(0, 255, 170, 0.5);
+            --bg: #0a0a0a; 
+            --error: #ff4444;
+            --success: #00ffaa;
+            --calculator-bg: #1a1a1a;
+            --calculator-display: #000;
+            --calculator-button: #333;
+            --calculator-button-hover: #444;
         }
-
+        
         * { 
             box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            font-family: 'Segoe UI', 'Arial', sans-serif; 
+            margin: 0;
+            padding: 0;
         }
-
+        
         body { 
             margin: 0; 
-            background: linear-gradient(135deg, #0a0a2a 0%, #1a1a3a 50%, #0a2a2a 100%);
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.8) 0%, rgba(0, 26, 26, 0.8) 100%); 
             color: #fff; 
             overflow: hidden; 
-            height: 100vh;
+            transition: background 0.5s ease;
         }
-
+        
         #layout { 
             display: flex; 
             width: 100vw; 
             height: 100vh; 
-            padding: 15px; 
-            gap: 15px; 
-            background: rgba(0, 0, 0, 0.6);
+            padding: 10px; 
+            gap: 10px; 
         }
-
-        #leftPanel, #rightPanel { 
-            width: 300px; 
-            background: var(--bg-overlay); 
-            border: 2px solid var(--panel-border);
-            border-radius: 20px; 
-            padding: 20px; 
+        
+        /* Left Panel - Game Controls */
+        #leftPanel { 
+            width: 280px; 
+            min-width: 280px;
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.8));
+            border: 2px solid rgba(0, 255, 170, 0.6);
+            border-radius: 16px; 
+            padding: 15px; 
             display: flex; 
             flex-direction: column; 
-            gap: 15px;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            gap: 12px;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 30px rgba(0, 255, 170, 0.3);
+            z-index: 100;
+            position: relative;
             overflow-y: auto;
+            max-height: 100%;
+            backdrop-filter: blur(10px);
         }
-
+        
+        /* Right Panel - Calculator and Settings */
+        #rightPanel { 
+            width: 280px; 
+            min-width: 280px;
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.8));
+            border: 2px solid rgba(0, 255, 170, 0.6);
+            border-radius: 16px; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 30px rgba(0, 255, 170, 0.3);
+            z-index: 100;
+            position: relative;
+            overflow-y: auto;
+            max-height: 100%;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Central Game Area */
         #gameContainer { 
             flex: 1; 
+            min-width: 0;
             position: relative; 
-            border: 2px solid var(--panel-border);
-            border-radius: 20px; 
-            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(0, 255, 170, 0.6);
+            border-radius: 16px; 
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.8));
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 0;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 30px rgba(0, 255, 170, 0.3);
+            backdrop-filter: blur(5px);
         }
-
-        canvas#game { 
-            width: 100%; 
-            height: 100%; 
-            display: block; 
-            background: transparent;
-        }
-
+        
+        /* ARC Logo */
         .arc-logo {
-            text-align: center;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--panel-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(0, 255, 170, 0.3);
         }
-
-        .arc-logo h2 {
-            font-size: 24px;
+        
+        .arc-logo .logo-icon {
+            font-size: 28px;
             background: linear-gradient(45deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: 3px;
-            text-shadow: 0 0 10px rgba(0, 255, 170, 0.3);
+            background-clip: text;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 170, 0.5));
         }
-
-        .stats-box {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 15px;
+        
+        h2 { 
+            text-align: center; 
+            color: var(--primary); 
+            margin: 0; 
+            font-size: 22px; 
+            text-shadow: 0 0 15px rgba(0, 255, 170, 0.7);
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        
+        .panel-title {
+            color: var(--primary);
+            font-size: 18px;
+            margin: 10px 0 5px 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(0, 255, 170, 0.3);
+            text-align: center;
+        }
+        
+        .stats { 
+            background: linear-gradient(145deg, rgba(0, 10, 20, 0.8), rgba(0, 20, 40, 0.8));
+            padding: 12px; 
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s;
+            border: 1px solid rgba(0, 255, 170, 0.4);
+            box-shadow: 
+                inset 0 2px 10px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(0, 255, 170, 0.2);
         }
-
-        .stats-box.connected {
-            border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(0, 255, 170, 0.2);
-        }
-
+        
         .row { 
             display: flex; 
             justify-content: space-between; 
             margin: 8px 0; 
             font-size: 14px; 
-            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(0, 255, 170, 0.2);
         }
-
+        
+        .row:last-child { border-bottom: none; }
+        
         .val { 
-            color: var(--primary); 
-            font-family: 'Courier New', monospace; 
             font-weight: bold; 
-            font-size: 13px;
-            max-width: 150px;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            color: var(--secondary); 
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 8px rgba(0, 170, 255, 0.5);
+            font-size: 15px;
         }
-
-        .status {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
+        
+        .combo-display {
+            background: linear-gradient(45deg, rgba(255, 0, 128, 0.8), rgba(0, 255, 170, 0.8));
+            padding: 8px 12px;
+            border-radius: 20px;
             font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 0 20px rgba(255, 0, 128, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            font-size: 16px;
+        }
+        
+        .combo-display.active {
+            opacity: 1;
+            transform: scale(1);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 20px rgba(255, 0, 128, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(255, 0, 128, 0.7); }
+            100% { box-shadow: 0 0 20px rgba(255, 0, 128, 0.5); }
         }
 
-        .status.connected {
-            background: rgba(0, 255, 170, 0.2);
-            color: var(--primary);
-        }
-
-        .status.disconnected {
-            background: rgba(255, 0, 0, 0.2);
-            color: #ff4444;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            border-radius: 10px;
-            border: none;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            text-transform: uppercase;
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 10px; 
+            background: linear-gradient(145deg, var(--primary), var(--secondary));
+            color: #000; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: all 0.3s ease;
             font-size: 14px;
-            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
-
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            transition: left 0.7s ease;
+            z-index: -1;
+        }
+        
         button:hover:not(:disabled) {
-            transform: scale(1.02);
-            box-shadow: 0 0 20px var(--primary);
+            transform: translateY(-2px);
+            filter: brightness(1.3);
+            box-shadow: 
+                0 6px 20px rgba(0, 255, 170, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
-
+        
+        button:hover:not(:disabled)::before {
+            left: 100%;
+        }
+        
+        button:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+        
         button:disabled { 
-            opacity: 0.5; 
-            cursor: not-allowed;
-            background: linear-gradient(135deg, #666, #888);
+            opacity: 0.6; 
+            cursor: not-allowed; 
+            background: linear-gradient(145deg, rgba(102, 102, 102, 0.8), rgba(136, 136, 136, 0.8));
+            color: #666;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .button-group button {
+            flex: 1;
+        }
+        
+        canvas { 
+            width: 100%; 
+            height: 100%; 
+            display: block;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        
+        #overlay {
+            position: absolute; 
+            inset: 0; 
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.8));
+            z-index: 10; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            justify-content: center; 
+            text-align: center; 
+            padding: 20px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+        
+        #overlay h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(0, 255, 170, 0.7);
+        }
+        
+        #overlay p {
+            font-size: 1.1em;
+            color: rgba(255, 255, 255, 0.95);
+            max-width: 500px;
+            line-height: 1.5;
+            background: linear-gradient(145deg, rgba(0, 10, 20, 0.8), rgba(0, 20, 40, 0.8));
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 170, 0.4);
+            box-shadow: 0 0 20px rgba(0, 255, 170, 0.3);
         }
 
-        .calc-screen {
+        /* Power Bar */
+        .bar-wrap { 
+            margin-top: 10px; 
+            font-size: 14px; 
+            color: rgba(255, 255, 255, 0.95); 
+            background: linear-gradient(145deg, rgba(0, 10, 20, 0.8), rgba(0, 20, 40, 0.8));
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 170, 0.4);
+            box-shadow: 
+                inset 0 2px 8px rgba(0, 0, 0, 0.5),
+                0 0 15px rgba(0, 255, 170, 0.2);
+        }
+        
+        .bar { 
+            width: 100%; 
+            height: 12px; 
+            background: rgba(0, 0, 0, 0.8); 
+            border-radius: 6px; 
+            overflow: hidden; 
+            margin-top: 8px; 
+            border: 1px solid rgba(0, 255, 170, 0.3);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+        
+        #powerBar { 
+            height: 100%; 
+            width: 0%; 
+            background: linear-gradient(90deg, #00ff88, #ffaa00, #ff0000); 
+            transition: width 0.08s ease;
+            border-radius: 6px;
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.5);
+        }
+        
+        .bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-top: 6px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Cryptocurrency Ticker */
+        #ticker {
+            position: absolute; 
+            bottom: 0; 
+            width: 100%; 
+            height: 50px;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.8));
+            border-top: 2px solid rgba(0, 255, 170, 0.6); 
+            padding: 10px 0; 
+            font-size: 13px;
+            z-index: 5;
+            overflow: hidden;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+        }
+        
+        #tickerTrack { 
+            display: inline-block; 
+            white-space: nowrap; 
+            padding-right: 40px;
+            font-family: 'Courier New', monospace;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 0 6px rgba(0, 255, 170, 0.5);
+            font-weight: bold;
+            animation: scroll 40s linear infinite;
+            padding-top: 4px;
+        }
+        
+        @keyframes scroll { 
+            0% { transform: translateX(100%); } 
+            100% { transform: translateX(-100%); } 
+        }
+
+        .crypto-ticker-item {
+            display: inline-block;
+            margin: 0 20px;
+            padding: 6px 12px;
+            background: linear-gradient(145deg, rgba(0, 10, 20, 0.8), rgba(0, 20, 40, 0.8));
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 170, 0.4);
+            box-shadow: 0 0 15px rgba(0, 255, 170, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .crypto-ticker-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(0, 255, 170, 0.5);
+        }
+        
+        .crypto-ticker-item .symbol {
+            color: var(--primary);
+            font-weight: bold;
+            margin-right: 6px;
+            font-size: 14px;
+        }
+        
+        .crypto-ticker-item .price {
+            color: var(--secondary);
+            font-size: 13px;
+        }
+        
+        .crypto-ticker-item .change {
+            margin-left: 8px;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .crypto-ticker-item .change.positive {
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.15);
+        }
+        
+        .crypto-ticker-item .change.negative {
+            color: #ff4444;
+            background: rgba(255, 68, 68, 0.15);
+        }
+
+        /* FPS Indicator */
+        #fpsCounter {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.8));
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            z-index: 5;
+            border: 1px solid rgba(0, 255, 170, 0.4);
+            box-shadow: 0 0 20px rgba(0, 255, 170, 0.3);
+            color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Pause Indicator */
+        #pauseOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.8));
+            z-index: 9;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            color: var(--primary);
+            border-radius: 16px;
+            text-shadow: 0 0 25px rgba(0, 255, 170, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Particle Effect */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            z-index: 2;
+            box-shadow: 0 0 15px currentColor;
+        }
+        
+        /* Canvas for Animated Background */
+        #particleBackground {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* Calculator */
+        .calculator-container {
+            background: linear-gradient(145deg, rgba(26, 26, 26, 0.8), rgba(15, 15, 15, 0.8));
+            border-radius: 12px;
+            padding: 15px;
+            border: 2px solid rgba(0, 255, 170, 0.6);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .calculator-display {
             background: rgba(0, 0, 0, 0.8);
             color: var(--primary);
-            padding: 15px;
-            text-align: right;
-            font-size: 22px;
-            border-radius: 8px;
-            margin-bottom: 10px;
             font-family: 'Courier New', monospace;
-            min-height: 60px;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            border: 1px solid rgba(0, 255, 170, 0.3);
-        }
-
-        .calc-grid { 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 8px; 
-        }
-
-        .calc-btn {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
+            font-size: 24px;
             padding: 12px;
             border-radius: 8px;
+            text-align: right;
+            margin-bottom: 12px;
+            border: 1px solid rgba(0, 255, 170, 0.4);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            overflow: hidden;
+            text-shadow: 0 0 8px rgba(0, 255, 170, 0.5);
+        }
+        
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        .calculator-button {
+            background: linear-gradient(145deg, rgba(51, 51, 51, 0.8), rgba(42, 42, 42, 0.8));
             border: none;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 12px 0;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
-            transition: 0.2s;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
         }
-
-        .calc-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+        
+        .calculator-button:hover {
+            background: linear-gradient(145deg, rgba(68, 68, 68, 0.9), rgba(58, 58, 58, 0.9));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
         }
-
-        .calc-btn.operator {
-            background: rgba(255, 165, 0, 0.3);
-            color: #ffaa00;
+        
+        .calculator-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
         }
-
-        .calc-btn.equals {
-            background: rgba(0, 255, 170, 0.3);
-            color: var(--primary);
+        
+        .calculator-button.operator {
+            background: linear-gradient(145deg, rgba(255, 153, 0, 0.8), rgba(204, 122, 0, 0.8));
+            color: #000;
         }
-
-        .calc-btn.clear {
-            background: rgba(255, 68, 68, 0.3);
-            color: #ff4444;
+        
+        .calculator-button.operator:hover {
+            background: linear-gradient(145deg, rgba(255, 170, 0, 0.9), rgba(221, 139, 0, 0.9));
         }
-
-        .game-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 30px;
-            border-radius: 15px;
-            border: 2px solid var(--panel-border);
+        
+        .calculator-button.equals {
+            background: linear-gradient(145deg, rgba(0, 255, 170, 0.8), rgba(0, 204, 136, 0.8));
+            color: #000;
+            grid-column: span 2;
+        }
+        
+        .calculator-button.equals:hover {
+            background: linear-gradient(145deg, rgba(0, 255, 187, 0.9), rgba(0, 221, 153, 0.9));
+        }
+        
+        .calculator-button.clear {
+            background: linear-gradient(145deg, rgba(255, 68, 68, 0.8), rgba(204, 0, 0, 0.8));
+            color: #fff;
+        }
+        
+        .calculator-button.clear:hover {
+            background: linear-gradient(145deg, rgba(255, 85, 85, 0.9), rgba(221, 0, 0, 0.9));
+        }
+        
+        /* Customization Section */
+        .customization-section {
+            background: linear-gradient(145deg, rgba(0, 10, 20, 0.8), rgba(0, 20, 40, 0.8));
+            border-radius: 12px;
+            padding: 15px;
+            border: 2px solid rgba(0, 255, 170, 0.6);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
-            display: none;
-            z-index: 100;
         }
-
-        .game-overlay h3 {
+        
+        .customization-title {
             color: var(--primary);
-            margin-bottom: 20px;
-            font-size: 24px;
+            text-align: center;
+            margin-bottom: 12px;
+            font-size: 16px;
+            text-shadow: 0 0 8px rgba(0, 255, 170, 0.5);
+            border-bottom: 1px solid rgba(0, 255, 170, 0.3);
+            padding-bottom: 6px;
         }
-
-        .fps-counter {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 12px;
-            color: var(--primary);
-            background: rgba(0, 0, 0, 0.5);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-family: monospace;
+        
+        .customization-group {
+            margin-bottom: 12px;
         }
-
-        input[type="range"] {
-            width: 100px;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            outline: none;
+        
+        .customization-label {
+            display: block;
+            margin-bottom: 6px;
+            color: #00aaff;
+            font-size: 13px;
+            font-weight: bold;
         }
-
-        input[type="range"]::-webkit-slider-thumb {
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: var(--primary);
+        
+        .customization-select {
+            width: 100%;
+            padding: 8px;
+            background: rgba(26, 26, 26, 0.8);
+            color: white;
+            border: 2px solid rgba(0, 255, 170, 0.3);
+            border-radius: 6px;
+            font-size: 13px;
             cursor: pointer;
         }
-
+        
+        .customization-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 8px rgba(0, 255, 170, 0.5);
+        }
+        
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .color-picker {
+            width: 45px;
+            height: 35px;
+            border: 2px solid rgba(0, 255, 170, 0.5);
+            border-radius: 6px;
+            cursor: pointer;
+            background: transparent;
+        }
+        
+        .color-picker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        
+        .color-picker::-webkit-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
+        
+        .effects-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .effect-button {
+            padding: 8px;
+            background: linear-gradient(145deg, rgba(0, 10, 20, 0.8), rgba(0, 20, 40, 0.8));
+            border: 1px solid rgba(0, 255, 170, 0.4);
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .effect-button:hover {
+            background: linear-gradient(145deg, rgba(0, 20, 40, 0.9), rgba(0, 30, 60, 0.9));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 170, 0.3);
+        }
+        
+        .effect-button.active {
+            background: linear-gradient(145deg, rgba(0, 255, 170, 0.8), rgba(0, 204, 136, 0.8));
+            color: #000;
+            font-weight: bold;
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: auto;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0, 255, 170, 0.3);
+        }
+        
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            max-width: 250px;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.5),
+                0 0 15px rgba(0, 255, 170, 0.3);
+            backdrop-filter: blur(15px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            color: var(--success);
+            border-left: 4px solid var(--success);
+            background: rgba(0, 255, 170, 0.2);
+        }
+        
+        .notification.error {
+            color: var(--error);
+            border-left: 4px solid var(--error);
+            background: rgba(255, 68, 68, 0.2);
+        }
+        
+        .notification.info {
+            color: var(--secondary);
+            border-left: 4px solid var(--secondary);
+            background: rgba(0, 170, 255, 0.2);
+        }
+        
+        /* Custom Scrollbar */
+        #leftPanel::-webkit-scrollbar,
+        #rightPanel::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #leftPanel::-webkit-scrollbar-track,
+        #rightPanel::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+        }
+        
+        #leftPanel::-webkit-scrollbar-thumb,
+        #rightPanel::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 170, 0.4);
+            border-radius: 3px;
+        }
+        
+        #leftPanel::-webkit-scrollbar-thumb:hover,
+        #rightPanel::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 255, 170, 0.6);
+        }
+        
+        /* Styles for smaller screens */
         @media (max-width: 1200px) {
             #layout {
                 flex-direction: column;
                 height: auto;
-                overflow-y: auto;
+                min-height: 100vh;
             }
             
             #leftPanel, #rightPanel {
                 width: 100%;
-                max-height: 300px;
+                min-width: auto;
+                max-height: 40vh;
             }
             
             #gameContainer {
-                min-height: 500px;
+                height: 60vh;
             }
         }
     </style>
 </head>
 <body>
+    <canvas id="particleBackground"></canvas>
+    
     <div id="layout">
-        <!-- Painel Esquerdo - Controle e Status -->
+        <!-- Left Panel - Game Controls -->
         <div id="leftPanel">
             <div class="arc-logo">
-                <h2>🎯 ARC BUBBLE SHOOTER</h2>
-                <p style="font-size: 12px; opacity: 0.7;">Pro Edition v3.0</p>
+                <div class="logo-icon">✦</div>
+                <h2>ARC BUBBLE SHOOTER</h2>
             </div>
             
-            <div class="stats-box" id="statsBox">
+            <div class="panel-title">🎮 GAME CONTROLS</div>
+            
+            <div class="stats">
                 <div class="row">
-                    <span>STATUS:</span>
-                    <span class="status disconnected" id="statusText">Disconnected</span>
+                    <span>👛 Wallet:</span> 
+                    <span id="wallet" class="val">---</span>
                 </div>
                 <div class="row">
-                    <span>WALLET:</span>
-                    <span class="val" id="walletAddress">0x...0000</span>
+                    <span>💰 USDC Balance:</span> 
+                    <span id="balance" class="val">0.0000</span>
                 </div>
                 <div class="row">
-                    <span>BALANCE:</span>
-                    <span class="val" id="balanceText">0 ETH</span>
+                    <span>🎯 Score:</span> 
+                    <span id="score" class="val">0</span>
                 </div>
                 <div class="row">
-                    <span>NETWORK:</span>
-                    <span class="val" id="networkText">Unknown</span>
+                    <span>📈 Level:</span> 
+                    <span id="level" class="val">1</span>
                 </div>
                 <div class="row">
-                    <span>SCORE:</span>
-                    <span class="val" id="scoreText">0</span>
-                </div>
-                <div class="row">
-                    <span>LEVEL:</span>
-                    <span class="val" id="levelText">1</span>
-                </div>
-                <div class="row">
-                    <span>BUBBLES:</span>
-                    <span class="val" id="bubblesText">0</span>
+                    <span>⚡ Combo:</span> 
+                    <span id="combo" class="val">x1</span>
                 </div>
             </div>
 
-            <button id="btnConnect">🔗 CONNECT WALLET</button>
-            <button id="btnStart" disabled>🚀 START GAME</button>
-            <button id="btnReset" disabled>🔄 RESET GAME</button>
-            
-            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <p style="font-size: 12px; color: var(--secondary); margin-bottom: 10px;">GAME CONTROLS</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <button style="padding: 8px;" onclick="moveCannon('left')">← LEFT</button>
-                    <button style="padding: 8px;" onclick="moveCannon('right')">→ RIGHT</button>
-                </div>
-                <p style="font-size: 11px; opacity: 0.6; margin-top: 10px; text-align: center;">
-                    Click or use arrow keys to aim
-                </p>
+            <div class="combo-display" id="comboDisplay">
+                COMBO <span id="comboValue">x1</span>!
             </div>
 
-            <div style="margin-top: auto; font-size: 10px; text-align: center; opacity: 0.6;">
-                ARC NETWORK TESTNET • Powered by Ethers.js
+            <div class="bar-wrap">
+                ⚡ Shot Power
+                <div class="bar">
+                    <div id="powerBar"></div>
+                </div>
+                <div class="bar-labels">
+                    <span>Weak</span>
+                    <span>Medium</span>
+                    <span>Strong</span>
+                </div>
+            </div>
+
+            <button id="btnConnect">1. Connect MetaMask</button>
+            <button id="btnSign" disabled>2. Sign Terms</button>
+            <button id="btnStart" disabled>3. Start Game</button>
+            
+            <div class="button-group">
+                <button id="btnPause" style="display: none;">⏸️ Pause</button>
+                <button id="btnRestart" style="display: none;">🔄 Restart</button>
+            </div>
+            
+            <div class="footer">
+                ARC Testnet v3.0 • Optimized Layout • 80% Transparency
+                <br>
+                <span id="fps" style="font-family: 'Courier New'; color: rgba(255, 255, 255, 0.8);"></span>
             </div>
         </div>
 
-        <!-- Container do Jogo -->
+        <!-- Central Game Area -->
         <div id="gameContainer">
-            <canvas id="game"></canvas>
-            <div class="fps-counter" id="fpsCounter">FPS: 60</div>
-            
-            <div class="game-overlay" id="startOverlay">
-                <h3>🎮 ARC BUBBLE SHOOTER</h3>
-                <p>Connect your wallet and start playing!</p>
-                <p style="margin: 20px 0; font-size: 14px; opacity: 0.8;">
-                    Shoot matching bubbles to earn points.<br>
-                    Clear the board to advance levels.
+            <div id="overlay">
+                <h1 id="statusMsg">🔒 LOCKED</h1>
+                <p>Connect your wallet to unlock the game.</p>
+                <p style="font-size: 0.9em; margin-top: 15px; color: rgba(255, 255, 255, 0.95);">
+                    Use mouse to aim and hold to charge shot power.
                 </p>
-                <button onclick="hideStartOverlay()" style="width: 200px; margin-top: 10px;">
-                    GOT IT!
-                </button>
             </div>
+            
+            <div id="pauseOverlay">
+                <div style="font-size: 2em; text-shadow: 0 0 25px rgba(0, 255, 170, 0.8);">⏸️</div>
+                <div style="margin-top: 20px; font-size: 0.5em; color: rgba(255, 255, 255, 0.95);">GAME PAUSED</div>
+                <div style="margin-top: 10px; font-size: 0.4em; color: rgba(255, 255, 255, 0.8);">Click "Continue" in the panel</div>
+            </div>
+            
+            <canvas id="game"></canvas>
+            
+            <!-- Cryptocurrency Ticker -->
+            <div id="ticker">
+                <div id="tickerTrack">Loading quotes...</div>
+            </div>
+            
+            <div id="fpsCounter">FPS: 0</div>
         </div>
 
-        <!-- Painel Direito - Calculadora e Configurações -->
+        <!-- Right Panel - Calculator and Settings -->
         <div id="rightPanel">
-            <div style="text-align: center; color: var(--secondary); font-weight: bold; font-size: 16px;">
-                🧮 CALCULATOR
-            </div>
-            <div class="calc-screen" id="calcDisplay">0</div>
-            <div class="calc-grid">
-                <button class="calc-btn" onclick="calcInput('7')">7</button>
-                <button class="calc-btn" onclick="calcInput('8')">8</button>
-                <button class="calc-btn" onclick="calcInput('9')">9</button>
-                <button class="calc-btn operator" onclick="calcInput('/')">/</button>
-                
-                <button class="calc-btn" onclick="calcInput('4')">4</button>
-                <button class="calc-btn" onclick="calcInput('5')">5</button>
-                <button class="calc-btn" onclick="calcInput('6')">6</button>
-                <button class="calc-btn operator" onclick="calcInput('*')">×</button>
-                
-                <button class="calc-btn" onclick="calcInput('1')">1</button>
-                <button class="calc-btn" onclick="calcInput('2')">2</button>
-                <button class="calc-btn" onclick="calcInput('3')">3</button>
-                <button class="calc-btn operator" onclick="calcInput('-')">-</button>
-                
-                <button class="calc-btn" onclick="calcInput('0')">0</button>
-                <button class="calc-btn" onclick="calcInput('.')">.</button>
-                <button class="calc-btn clear" onclick="calcClear()">C</button>
-                <button class="calc-btn operator" onclick="calcInput('+')">+</button>
-                
-                <button class="calc-btn equals" onclick="calcEquals()" style="grid-column: span 2;">=</button>
-                <button class="calc-btn clear" onclick="calcBackspace()" style="grid-column: span 2;">⌫ BACK</button>
-            </div>
-
-            <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
-                <p style="font-size: 14px; color: var(--secondary); margin-bottom: 15px;">⚙️ CUSTOMIZATION</p>
-                
-                <div class="row">
-                    <span>Bubble Speed:</span>
-                    <input type="range" id="speedSlider" min="1" max="10" value="5">
-                </div>
-                <div class="row">
-                    <span>Game Volume:</span>
-                    <input type="range" id="volumeSlider" min="0" max="100" value="50">
-                </div>
-                <div class="row">
-                    <span>Opacity:</span>
-                    <input type="range" id="opacitySlider" min="20" max="100" value="75">
-                </div>
-                
-                <div style="margin-top: 20px;">
-                    <button onclick="saveSettings()" style="padding: 10px;">💾 SAVE SETTINGS</button>
+            <div class="panel-title">🧮 CALCULATOR</div>
+            
+            <div class="calculator-container">
+                <div class="calculator-display" id="calcDisplay">0</div>
+                <div class="calculator-buttons">
+                    <button class="calculator-button clear" onclick="clearCalc()">C</button>
+                    <button class="calculator-button" onclick="backspaceCalc()">⌫</button>
+                    <button class="calculator-button operator" onclick="appendToCalc('/')">/</button>
+                    <button class="calculator-button operator" onclick="appendToCalc('*')">×</button>
+                    
+                    <button class="calculator-button" onclick="appendToCalc('7')">7</button>
+                    <button class="calculator-button" onclick="appendToCalc('8')">8</button>
+                    <button class="calculator-button" onclick="appendToCalc('9')">9</button>
+                    <button class="calculator-button operator" onclick="appendToCalc('-')">-</button>
+                    
+                    <button class="calculator-button" onclick="appendToCalc('4')">4</button>
+                    <button class="calculator-button" onclick="appendToCalc('5')">5</button>
+                    <button class="calculator-button" onclick="appendToCalc('6')">6</button>
+                    <button class="calculator-button operator" onclick="appendToCalc('+')">+</button>
+                    
+                    <button class="calculator-button" onclick="appendToCalc('1')">1</button>
+                    <button class="calculator-button" onclick="appendToCalc('2')">2</button>
+                    <button class="calculator-button" onclick="appendToCalc('3')">3</button>
+                    <button class="calculator-button" onclick="appendToCalc('0')">0</button>
+                    
+                    <button class="calculator-button" onclick="appendToCalc('.')">.</button>
+                    <button class="calculator-button equals" onclick="calculateResult()">=</button>
                 </div>
             </div>
-
-            <div style="margin-top: auto; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <p style="font-size: 12px; opacity: 0.7; text-align: center;">
-                    Press SPACE to shoot • ESC to pause
-                </p>
+            
+            <div class="panel-title">🎨 CUSTOMIZATION</div>
+            
+            <div class="customization-section">
+                <div class="customization-group">
+                    <label class="customization-label">🎯 Bubble Color:</label>
+                    <div class="color-picker-container">
+                        <input type="color" id="bubbleColor" value="#00ffaa" class="color-picker">
+                        <span style="color: #fff; font-size: 13px;">Selected color</span>
+                    </div>
+                </div>
+                
+                <div class="customization-group">
+                    <label class="customization-label">🌌 Game Background:</label>
+                    <select id="gameBgSelect" class="customization-select">
+                        <option value="default">Default (Dark Gradient)</option>
+                        <option value="space">Space</option>
+                        <option value="matrix">Digital Matrix</option>
+                        <option value="nebula">Colorful Nebula</option>
+                        <option value="circuits">Circuits</option>
+                        <option value="abstract">Modern Abstract</option>
+                        <option value="solid_black">Solid Black</option>
+                        <option value="solid_blue">Deep Blue</option>
+                        <option value="solid_purple">Space Purple</option>
+                        <option value="gradient_blue">Blue Gradient</option>
+                        <option value="gradient_green">Green Gradient</option>
+                        <option value="gradient_red">Red Gradient</option>
+                    </select>
+                </div>
+                
+                <div class="customization-group">
+                    <label class="customization-label">✨ Visual Effects:</label>
+                    <div class="effects-buttons">
+                        <button id="toggleParticleBg" class="effect-button">🌟 Animated Background</button>
+                        <button id="toggleBloom" class="effect-button">💫 Bloom Effect</button>
+                        <button id="toggleGrid" class="effect-button">🔲 Background Grid</button>
+                        <button id="toggleShadows" class="effect-button">👥 Shadows</button>
+                    </div>
+                </div>
+                
+                <button id="resetCustomization" style="width: 100%; padding: 10px; margin-top: 8px; background: linear-gradient(145deg, rgba(255, 68, 68, 0.8), rgba(204, 0, 0, 0.8)); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">
+                    🔄 Reset All
+                </button>
             </div>
         </div>
     </div>
 
+    <!-- Particle Container -->
+    <div id="particleContainer"></div>
+
     <script>
-        // ========== VARIÁVEIS GLOBAIS ==========
-        let provider = null;
-        let signer = null;
-        let userAddress = null;
-        let isConnected = false;
-        let isGameRunning = false;
-        let score = 0;
-        let level = 1;
-        let bubbles = 0;
+    /* ===== GENERAL CONFIGURATIONS ===== */
+    const ARC_CHAIN = {
+        chainId: "0x4CF7D2",
+        chainName: "ARC Testnet",
+        rpcUrls: ["https://rpc.testnet.arc.network"],
+        nativeCurrency: { 
+            name: "ARC", 
+            symbol: "ARC", 
+            decimals: 18 
+        },
+        blockExplorerUrls: ["https://testnet.arc.network"]
+    };
+
+    /* ===== GLOBAL VARIABLES ===== */
+    let provider = null;
+    let signer = null;
+    let account = null;
+    let signed = false;
+    let gameInitialized = false;
+    let gameRunning = false;
+    let gamePaused = false;
+    let audioCtx = null;
+    let startDebounce = false;
+
+    const state = { 
+        score: 0, 
+        balance: 0, 
+        level: 1, 
+        combo: 1,
+        maxCombo: 1
+    };
+
+    /* ===== NOTIFICATION SYSTEM ===== */
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
         
-        // Configuração da rede ARC (ajuste conforme necessário)
-        const arcNetwork = {
-            chainId: '0x1A4', // 420 em hexadecimal - Optimism Goerli
-            chainName: 'ARC Network Testnet',
-            nativeCurrency: {
-                name: 'ETH',
-                symbol: 'ETH',
-                decimals: 18
-            },
-            rpcUrls: ['https://sepolia-rollup.arbitrum.io/rpc'],
-            blockExplorerUrls: ['https://sepolia.arbiscan.io/']
-        };
-
-        // ========== ELEMENTOS DA UI ==========
-        const elements = {
-            btnConnect: document.getElementById('btnConnect'),
-            btnStart: document.getElementById('btnStart'),
-            btnReset: document.getElementById('btnReset'),
-            walletAddress: document.getElementById('walletAddress'),
-            balanceText: document.getElementById('balanceText'),
-            networkText: document.getElementById('networkText'),
-            statusText: document.getElementById('statusText'),
-            statsBox: document.getElementById('statsBox'),
-            scoreText: document.getElementById('scoreText'),
-            levelText: document.getElementById('levelText'),
-            bubblesText: document.getElementById('bubblesText'),
-            calcDisplay: document.getElementById('calcDisplay'),
-            fpsCounter: document.getElementById('fpsCounter'),
-            startOverlay: document.getElementById('startOverlay')
-        };
-
-        // ========== CONEXÃO COM METAMASK ==========
-        async function connectWallet() {
-            try {
-                // Verificar se MetaMask está instalado
-                if (!window.ethereum) {
-                    alert('MetaMask não encontrado! Por favor, instale a extensão.');
-                    return;
-                }
-
-                // Solicitar conexão
-                const accounts = await window.ethereum.request({ 
-                    method: 'eth_requestAccounts' 
-                });
-                
-                // Criar provider e signer
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                signer = provider.getSigner();
-                userAddress = accounts[0];
-                
-                // Verificar rede
-                const network = await provider.getNetwork();
-                const chainIdHex = '0x' + network.chainId.toString(16);
-                
-                if (chainIdHex !== arcNetwork.chainId) {
-                    await switchToArcNetwork();
-                }
-                
-                // Atualizar UI
-                updateUI(true);
-                await updateBalance();
-                
-                console.log('✅ Carteira conectada:', userAddress);
-                
-            } catch (error) {
-                console.error('❌ Erro na conexão:', error);
-                alert(`Erro: ${error.message}`);
-            }
-        }
-
-        // ========== TROCAR PARA REDE ARC ==========
-        async function switchToArcNetwork() {
-            try {
-                await window.ethereum.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: arcNetwork.chainId }],
-                });
-            } catch (switchError) {
-                // Se a rede não existir, adicioná-la
-                if (switchError.code === 4902) {
-                    try {
-                        await window.ethereum.request({
-                            method: 'wallet_addEthereumChain',
-                            params: [arcNetwork],
-                        });
-                    } catch (addError) {
-                        console.error('Erro ao adicionar rede:', addError);
-                        alert('Erro ao adicionar rede ARC. Adicione manualmente.');
-                    }
-                } else {
-                    console.error('Erro ao trocar rede:', switchError);
-                }
-            }
-        }
-
-        // ========== ATUALIZAR UI ==========
-        function updateUI(connected) {
-            isConnected = connected;
-            
-            if (connected) {
-                // Formatar endereço da carteira
-                const shortAddress = `${userAddress.substring(0,6)}...${userAddress.substring(38)}`;
-                elements.walletAddress.textContent = shortAddress;
-                elements.statusText.textContent = 'Connected';
-                elements.statusText.className = 'status connected';
-                elements.statsBox.classList.add('connected');
-                elements.btnConnect.textContent = '✅ CONNECTED';
-                elements.btnConnect.disabled = true;
-                elements.btnStart.disabled = false;
-                elements.networkText.textContent = 'ARC Testnet';
-            } else {
-                elements.walletAddress.textContent = '0x...0000';
-                elements.statusText.textContent = 'Disconnected';
-                elements.statusText.className = 'status disconnected';
-                elements.statsBox.classList.remove('connected');
-                elements.btnConnect.textContent = '🔗 CONNECT WALLET';
-                elements.btnConnect.disabled = false;
-                elements.btnStart.disabled = true;
-                elements.btnReset.disabled = true;
-                elements.balanceText.textContent = '0 ETH';
-                elements.networkText.textContent = 'Unknown';
-            }
-        }
-
-        // ========== ATUALIZAR SALDO ==========
-        async function updateBalance() {
-            if (!provider || !userAddress) return;
-            
-            try {
-                const balance = await provider.getBalance(userAddress);
-                const ethBalance = ethers.utils.formatEther(balance);
-                elements.balanceText.textContent = `${parseFloat(ethBalance).toFixed(4)} ETH`;
-            } catch (error) {
-                console.error('Erro ao obter saldo:', error);
-            }
-        }
-
-        // ========== LÓGICA DO JOGO (BUBBLE SHOOTER) ==========
-        const canvas = document.getElementById('game');
-        const ctx = canvas.getContext('2d');
+        setTimeout(() => notification.classList.add('show'), 10);
         
-        // Variáveis do jogo
-        let gameObjects = [];
-        let cannonAngle = 0;
-        let nextBubbleColor = getRandomColor();
-        let fps = 60;
-        let lastFrameTime = 0;
-        let frameCount = 0;
-        let lastFpsUpdate = 0;
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
 
-        // Configuração do canvas
-        function resizeCanvas() {
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+    /* ===== UI ELEMENTS ===== */
+    const ui = {
+        wallet: document.getElementById("wallet"),
+        balance: document.getElementById("balance"),
+        score: document.getElementById("score"),
+        level: document.getElementById("level"),
+        combo: document.getElementById("combo"),
+        comboValue: document.getElementById("comboValue"),
+        comboDisplay: document.getElementById("comboDisplay"),
+        power: document.getElementById("powerBar"),
+        overlay: document.getElementById("overlay"),
+        pauseOverlay: document.getElementById("pauseOverlay"),
+        btnConnect: document.getElementById("btnConnect"),
+        btnSign: document.getElementById("btnSign"),
+        btnStart: document.getElementById("btnStart"),
+        btnPause: document.getElementById("btnPause"),
+        btnRestart: document.getElementById("btnRestart"),
+        fps: document.getElementById("fps"),
+        fpsCounter: document.getElementById("fpsCounter"),
+        calcDisplay: document.getElementById("calcDisplay")
+    };
+
+    /* ===== CALCULATOR ===== */
+    let calcExpression = '';
+
+    function appendToCalc(value) {
+        if (calcExpression === '0' && !'+-*/.'.includes(value)) {
+            calcExpression = value;
+        } else {
+            calcExpression += value;
         }
+        ui.calcDisplay.textContent = calcExpression;
+    }
 
-        // Classe Bubble
-        class Bubble {
-            constructor(x, y, radius, color, dx = 0, dy = 0) {
-                this.x = x;
-                this.y = y;
-                this.radius = radius;
-                this.color = color;
-                this.dx = dx;
-                this.dy = dy;
-                this.active = true;
-            }
+    function clearCalc() {
+        calcExpression = '0';
+        ui.calcDisplay.textContent = calcExpression;
+    }
+
+    function backspaceCalc() {
+        calcExpression = calcExpression.slice(0, -1);
+        if (calcExpression === '') calcExpression = '0';
+        ui.calcDisplay.textContent = calcExpression;
+    }
+
+    function calculateResult() {
+        try {
+            // SECURITY FIX: Safe mathematical evaluation
+            const result = safeEvaluate(calcExpression.replace('×', '*'));
+            calcExpression = result.toString();
+            ui.calcDisplay.textContent = calcExpression;
             
-            draw() {
-                if (!this.active) return;
-                
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-                
-                // Efeito de brilho
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius * 0.7, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.fill();
-            }
-            
-            update() {
-                if (!this.active) return;
-                
-                this.x += this.dx;
-                this.y += this.dy;
-                
-                // Colisão com paredes
-                if (this.x - this.radius < 0 || this.x + this.radius > canvas.width) {
-                    this.dx *= -0.8; // Reduz velocidade
-                }
-                
-                // Colisão com teto
-                if (this.y - this.radius < 0) {
-                    this.y = this.radius;
-                    this.dy *= -0.8;
-                }
-                
-                // Colisão com chão
-                if (this.y + this.radius > canvas.height) {
-                    this.y = canvas.height - this.radius;
-                    this.dy *= -0.8;
-                    this.dx *= 0.9; // Fricção
-                }
-                
-                // Gravidade
-                this.dy += 0.1;
-                
-                // Desacelerar
-                this.dx *= 0.99;
-                this.dy *= 0.99;
-                
-                // Remover bolhas muito lentas
-                if (Math.abs(this.dx) < 0.1 && Math.abs(this.dy) < 0.1 && this.y === canvas.height - this.radius) {
-                    this.active = false;
-                }
-            }
+            ui.calcDisplay.style.textShadow = '0 0 15px rgba(0, 255, 170, 0.8)';
+            setTimeout(() => {
+                ui.calcDisplay.style.textShadow = '0 0 8px rgba(0, 255, 170, 0.5)';
+            }, 300);
+        } catch (error) {
+            ui.calcDisplay.textContent = 'Error';
+            calcExpression = '0';
+            setTimeout(() => {
+                ui.calcDisplay.textContent = calcExpression;
+            }, 1000);
         }
+    }
 
-        // Funções auxiliares
-        function getRandomColor() {
-            const colors = [
-                '#FF4444', '#44FF44', '#4444FF', 
-                '#FFFF44', '#FF44FF', '#44FFFF',
-                '#FFAA00', '#AA00FF', '#00FFAA'
-            ];
-            return colors[Math.floor(Math.random() * colors.length)];
+    // Safe evaluation function (replaces eval)
+    function safeEvaluate(expression) {
+        // Remove any dangerous characters
+        const sanitized = expression.replace(/[^0-9+\-*/().\s]/g, '');
+        
+        try {
+            // Use Function constructor in strict mode as a safe alternative
+            return Function('"use strict"; return (' + sanitized + ')')();
+        } catch (e) {
+            throw new Error('Invalid mathematical expression');
         }
+    }
 
-        function drawCannon() {
-            const centerX = canvas.width / 2;
-            const bottomY = canvas.height - 50;
-            const length = 60;
-            
-            // Base do canhão
-            ctx.beginPath();
-            ctx.arc(centerX, bottomY, 30, 0, Math.PI * 2);
-            ctx.fillStyle = '#333';
-            ctx.fill();
-            
-            // Cano do canhão
-            ctx.save();
-            ctx.translate(centerX, bottomY);
-            ctx.rotate(cannonAngle);
-            
-            ctx.beginPath();
-            ctx.rect(-10, -10, length, 20);
-            ctx.fillStyle = '#666';
-            ctx.fill();
-            
-            ctx.restore();
-            
-            // Próxima bolha
-            ctx.beginPath();
-            ctx.arc(centerX, bottomY - 80, 25, 0, Math.PI * 2);
-            ctx.fillStyle = nextBubbleColor;
-            ctx.fill();
+    /* ===== FPS SYSTEM ===== */
+    let fps = 0;
+    let fpsInterval = 0;
+    let lastFrameTime = 0;
+
+    function updateFPS() {
+        const now = performance.now();
+        if (lastFrameTime > 0) {
+            const delta = now - lastFrameTime;
+            fps = Math.round(1000 / delta);
         }
+        lastFrameTime = now;
+        
+        if (fpsInterval) clearInterval(fpsInterval);
+        fpsInterval = setInterval(() => {
+            if (ui.fps) ui.fps.textContent = `FPS: ${fps}`;
+            if (ui.fpsCounter) ui.fpsCounter.textContent = `FPS: ${fps}`;
+        }, 1000);
+    }
 
-        function shootBubble() {
-            if (!isGameRunning) return;
-            
-            const centerX = canvas.width / 2;
-            const bottomY = canvas.height - 50;
-            const speed = 10;
-            
-            const bubble = new Bubble(
-                centerX,
-                bottomY - 30,
-                20,
-                nextBubbleColor,
-                Math.sin(cannonAngle) * speed,
-                -Math.cos(cannonAngle) * speed
-            );
-            
-            gameObjects.push(bubble);
-            bubbles++;
-            elements.bubblesText.textContent = bubbles;
-            
-            // Nova bolha para próxima rodada
-            nextBubbleColor = getRandomColor();
+    /* ===== UI UPDATE ===== */
+    function updateUI() {
+        if (!ui.wallet) return;
+        
+        ui.wallet.textContent = account ? `${account.slice(0, 6)}...${account.slice(-4)}` : "---";
+        ui.balance.textContent = state.balance.toFixed(4);
+        ui.score.textContent = state.score.toLocaleString();
+        ui.level.textContent = state.level;
+        ui.combo.textContent = `x${state.combo}`;
+        ui.comboValue.textContent = `x${state.combo}`;
+        
+        if (state.combo > 1 && ui.comboDisplay) {
+            ui.comboDisplay.textContent = `COMBO x${state.combo}!`;
+            ui.comboDisplay.classList.add('active');
+            const redValue = Math.min(255, state.combo * 30);
+            ui.comboDisplay.style.background = 
+                `linear-gradient(45deg, rgba(255, 0, 128, 0.8), rgba(255, ${redValue}, 0, 0.8))`;
+        } else if (ui.comboDisplay) {
+            ui.comboDisplay.classList.remove('active');
         }
+    }
 
-        function moveCannon(direction) {
-            if (!isGameRunning) return;
-            
-            const angleStep = 0.1;
-            if (direction === 'left') {
-                cannonAngle = Math.max(cannonAngle - angleStep, -Math.PI/2);
-            } else if (direction === 'right') {
-                cannonAngle = Math.min(cannonAngle + angleStep, Math.PI/2);
-            }
+    /* ===== WALLET CONNECTION ===== */
+    ui.btnConnect.onclick = async () => {
+        if (typeof window.ethereum === 'undefined') {
+            showNotification("MetaMask not found! Please install the extension.", "error");
+            return;
         }
-
-        function updateScore(points) {
-            score += points;
-            elements.scoreText.textContent = score;
+        
+        try {
+            const accounts = await window.ethereum.request({ 
+                method: 'eth_requestAccounts' 
+            });
             
-            // Subir de nível a cada 100 pontos
-            const newLevel = Math.floor(score / 100) + 1;
-            if (newLevel > level) {
-                level = newLevel;
-                elements.levelText.textContent = level;
-                alert(`🎉 Level Up! Now at level ${level}`);
-            }
-        }
-
-        function gameLoop(currentTime) {
-            // Calcular FPS
-            frameCount++;
-            if (currentTime - lastFpsUpdate >= 1000) {
-                fps = frameCount;
-                frameCount = 0;
-                lastFpsUpdate = currentTime;
-                elements.fpsCounter.textContent = `FPS: ${fps}`;
-            }
-            
-            // Limpar canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Desenhar fundo gradiente
-            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            gradient.addColorStop(0, 'rgba(10, 10, 40, 0.3)');
-            gradient.addColorStop(1, 'rgba(20, 40, 60, 0.3)');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            if (isGameRunning) {
-                // Atualizar e desenhar bolhas
-                gameObjects.forEach(bubble => bubble.update());
-                gameObjects = gameObjects.filter(bubble => bubble.active);
-                
-                // Desenhar elementos do jogo
-                gameObjects.forEach(bubble => bubble.draw());
-                drawCannon();
-                
-                // Verificar colisões simples
-                for (let i = 0; i < gameObjects.length; i++) {
-                    for (let j = i + 1; j < gameObjects.length; j++) {
-                        const b1 = gameObjects[i];
-                        const b2 = gameObjects[j];
-                        
-                        const dx = b2.x - b1.x;
-                        const dy = b2.y - b1.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (distance < b1.radius + b2.radius && b1.color === b2.color) {
-                            // Colisão com mesma cor - pontuar
-                            updateScore(10);
-                            b1.active = false;
-                            b2.active = false;
-                        }
-                    }
-                }
-            } else {
-                // Tela de início
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = 'white';
-                ctx.font = '30px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('ARC BUBBLE SHOOTER', canvas.width/2, canvas.height/2 - 50);
-                
-                ctx.font = '16px Arial';
-                ctx.fillText('Connect wallet and press START', canvas.width/2, canvas.height/2);
-                
-                if (isConnected) {
-                    ctx.fillStyle = '#00ffaa';
-                    ctx.fillText('✅ Wallet Connected!', canvas.width/2, canvas.height/2 + 40);
-                } else {
-                    ctx.fillStyle = '#ff4444';
-                    ctx.fillText('❌ Connect Wallet First', canvas.width/2, canvas.height/2 + 40);
-                }
-            }
-            
-            requestAnimationFrame(gameLoop);
-        }
-
-        // ========== CONTROLES DO JOGO ==========
-        function startGame() {
-            if (!isConnected) {
-                alert('Please connect your wallet first!');
+            if (!accounts || accounts.length === 0) {
+                showNotification("No accounts connected.", "error");
                 return;
             }
             
-            isGameRunning = true;
-            elements.btnStart.textContent = '⏸️ PAUSE GAME';
-            elements.btnStart.onclick = pauseGame;
-            elements.btnReset.disabled = false;
-            elements.startOverlay.style.display = 'none';
+            account = accounts[0];
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            signer = provider.getSigner();
             
-            // Reiniciar variáveis
-            score = 0;
-            level = 1;
-            bubbles = 0;
-            gameObjects = [];
+            ui.btnSign.disabled = false;
+            ui.btnConnect.textContent = "✅ Connected";
+            ui.btnConnect.disabled = true;
             
-            updateScore(0);
-            elements.levelText.textContent = '1';
-            elements.bubblesText.textContent = '0';
-        }
-
-        function pauseGame() {
-            isGameRunning = false;
-            elements.btnStart.textContent = '▶️ RESUME GAME';
-            elements.btnStart.onclick = startGame;
-        }
-
-        function resetGame() {
-            isGameRunning = false;
-            score = 0;
-            level = 1;
-            bubbles = 0;
-            gameObjects = [];
-            cannonAngle = 0;
+            showNotification(`Connected: ${account.slice(0,6)}...${account.slice(-4)}`, "success");
+            updateUI();
             
-            updateScore(0);
-            elements.levelText.textContent = '1';
-            elements.bubblesText.textContent = '0';
-            elements.btnStart.textContent = '🚀 START GAME';
-            elements.btnStart.onclick = startGame;
-            elements.btnReset.disabled = true;
-        }
-
-        // ========== CALCULADORA ==========
-        function calcInput(value) {
-            if (elements.calcDisplay.textContent === '0' || elements.calcDisplay.textContent === 'Error') {
-                elements.calcDisplay.textContent = value;
+        } catch (error) {
+            if (error.code === 4001) {
+                showNotification("Connection rejected by user.", "error");
+            } else if (error.code === -32002) {
+                showNotification("Connection pending. Check your MetaMask.", "error");
             } else {
-                elements.calcDisplay.textContent += value;
+                showNotification(`Error: ${error.message}`, "error");
             }
         }
+    };
 
-        function calcClear() {
-            elements.calcDisplay.textContent = '0';
-        }
-
-        function calcBackspace() {
-            if (elements.calcDisplay.textContent.length > 1) {
-                elements.calcDisplay.textContent = elements.calcDisplay.textContent.slice(0, -1);
+    if (window.ethereum) {
+        window.ethereum.on('accountsChanged', (accounts) => {
+            if (accounts.length === 0) {
+                showNotification("Wallet disconnected.", "error");
+                account = null;
+                signed = false;
+                ui.btnSign.disabled = true;
+                ui.btnStart.disabled = true;
+                ui.btnSign.textContent = "2. Sign Terms";
+                ui.btnConnect.textContent = "1. Connect MetaMask";
+                ui.btnConnect.disabled = false;
+                updateUI();
             } else {
-                elements.calcDisplay.textContent = '0';
+                account = accounts[0];
+                updateUI();
+                showNotification("Account changed!", "info");
             }
+        });
+
+        window.ethereum.on('chainChanged', () => {
+            window.location.reload();
+        });
+    }
+
+    /* ===== SIGNATURE ===== */
+    ui.btnSign.onclick = async () => {
+        if (!signer || !account) {
+            showNotification("Connect a wallet first!", "error");
+            return;
         }
 
-        function calcEquals() {
-            try {
-                // Substituir símbolos para eval
-                let expression = elements.calcDisplay.textContent
-                    .replace(/×/g, '*')
-                    .replace(/÷/g, '/');
+        try {
+            const message = `ARC Bubble Shooter Authentication\n\nDate: ${new Date().toISOString()}\nAccount: ${account}`;
+            
+            const signature = await signer.signMessage(message);
+            
+            if (signature) {
+                signed = true;
+                ui.btnStart.disabled = false;
+                ui.btnSign.textContent = "✅ Signed";
+                ui.btnSign.disabled = true;
                 
-                // Validar expressão
-                if (!/^[0-9+\-*/.()\s]+$/.test(expression)) {
-                    throw new Error('Invalid expression');
+                document.getElementById("statusMsg").textContent = "🔓 READY TO PLAY";
+                showNotification("Signature confirmed! Ready to play.", "success");
+            }
+        } catch (error) {
+            if (error.code === 4001) {
+                showNotification("Signature cancelled by user.", "error");
+            } else {
+                showNotification("Signature error. Please try again.", "error");
+            }
+        }
+    };
+
+    /* ===== GAME CONTROLS ===== */
+    ui.btnStart.onclick = () => {
+        if (startDebounce) return;
+        startDebounce = true;
+        
+        if (!gameInitialized) {
+            ui.overlay.style.display = "none";
+            initAudio();
+            Game.init();
+            gameInitialized = true;
+            showNotification("Game started! Hold mouse button to charge shot.", "info");
+        }
+        
+        gameRunning = true;
+        ui.btnStart.style.display = "none";
+        ui.btnPause.style.display = "block";
+        ui.btnRestart.style.display = "block";
+        
+        setTimeout(() => startDebounce = false, 500);
+    };
+
+    ui.btnPause.onclick = () => {
+        gamePaused = !gamePaused;
+        ui.pauseOverlay.style.display = gamePaused ? "flex" : "none";
+        ui.btnPause.textContent = gamePaused ? "▶️ Continue" : "⏸️ Pause";
+        
+        if (gamePaused) {
+            showNotification("Game paused", "info");
+        }
+    };
+
+    ui.btnRestart.onclick = () => {
+        if (confirm("Restart the game? Your progress will be lost.")) {
+            state.score = 0;
+            state.level = 1;
+            state.combo = 1;
+            state.balance = 0;
+            state.maxCombo = 1;
+            Game.generateLevel();
+            updateUI();
+            showNotification("Game restarted!", "info");
+        }
+    };
+
+    /* ===== AUDIO ENGINE ===== */
+    function initAudio() { 
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            console.log("Audio not supported:", e);
+        }
+    }
+
+    function playSound(type, frequency = 440) {
+        if (!audioCtx) return;
+        
+        try {
+            const now = audioCtx.currentTime;
+            
+            switch(type) {
+                case 'pop':
+                    const popOsc = audioCtx.createOscillator();
+                    const popGain = audioCtx.createGain();
+                    popOsc.type = 'sine';
+                    popOsc.frequency.setValueAtTime(400 + Math.random() * 200, now);
+                    popOsc.frequency.exponentialRampToValueAtTime(50, now + 0.2);
+                    popGain.gain.setValueAtTime(0.3, now);
+                    popGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                    popOsc.connect(popGain);
+                    popGain.connect(audioCtx.destination);
+                    popOsc.start();
+                    popOsc.stop(now + 0.2);
+                    break;
+                    
+                case 'shoot':
+                    const shootOsc = audioCtx.createOscillator();
+                    const shootGain = audioCtx.createGain();
+                    shootOsc.type = 'square';
+                    shootOsc.frequency.setValueAtTime(200, now);
+                    shootOsc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+                    shootGain.gain.setValueAtTime(0.2, now);
+                    shootGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                    shootOsc.connect(shootGain);
+                    shootGain.connect(audioCtx.destination);
+                    shootOsc.start();
+                    shootOsc.stop(now + 0.1);
+                    break;
+                    
+                case 'level':
+                    const levelOsc = audioCtx.createOscillator();
+                    const levelGain = audioCtx.createGain();
+                    levelOsc.type = 'sine';
+                    levelOsc.frequency.setValueAtTime(523.25, now);
+                    levelOsc.frequency.setValueAtTime(659.25, now + 0.1);
+                    levelOsc.frequency.setValueAtTime(783.99, now + 0.2);
+                    levelGain.gain.setValueAtTime(0.3, now);
+                    levelGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    levelOsc.connect(levelGain);
+                    levelGain.connect(audioCtx.destination);
+                    levelOsc.start();
+                    levelOsc.stop(now + 0.3);
+                    break;
+            }
+        } catch (e) {
+            console.log("Audio error:", e);
+        }
+    }
+
+    /* ===== GAME PARTICLE SYSTEM ===== */
+    function createParticles(x, y, color, count = 8) {
+        const container = document.getElementById('particleContainer');
+        if (!container) return;
+        
+        for(let i = 0; i < count; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            const size = Math.random() * 8 + 4;
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = Math.random() * 5 + 2;
+            const life = Math.random() * 20 + 20;
+            
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.background = color;
+            particle.style.boxShadow = `0 0 ${size}px ${color}`;
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            
+            container.appendChild(particle);
+            
+            let frame = 0;
+            function animateParticle() {
+                frame++;
+                const progress = frame / life;
+                
+                if (progress >= 1) {
+                    particle.remove();
+                    return;
                 }
                 
-                const result = eval(expression);
-                elements.calcDisplay.textContent = Number.isFinite(result) ? result : 'Error';
-            } catch (error) {
-                elements.calcDisplay.textContent = 'Error';
+                const currentX = x + Math.cos(angle) * velocity * frame;
+                const currentY = y + Math.sin(angle) * velocity * frame;
+                const currentSize = size * (1 - progress);
+                const currentOpacity = 1 - progress;
+                
+                particle.style.left = `${currentX}px`;
+                particle.style.top = `${currentY}px`;
+                particle.style.width = `${currentSize}px`;
+                particle.style.height = `${currentSize}px`;
+                particle.style.opacity = currentOpacity;
+                
+                requestAnimationFrame(animateParticle);
             }
+            
+            animateParticle();
         }
+    }
 
-        // ========== CONFIGURAÇÕES ==========
-        function saveSettings() {
-            const speed = document.getElementById('speedSlider').value;
-            const volume = document.getElementById('volumeSlider').value;
-            const opacity = document.getElementById('opacitySlider').value;
-            
-            // Aplicar opacidade aos painéis
-            document.getElementById('leftPanel').style.opacity = opacity / 100;
-            document.getElementById('rightPanel').style.opacity = opacity / 100;
-            
-            // Salvar no localStorage
-            localStorage.setItem('arcGameSettings', JSON.stringify({
-                speed,
-                volume,
-                opacity,
-                saved: new Date().toISOString()
-            }));
-            
-            alert('Settings saved!');
-        }
+    /* ===== GAME ENGINE ===== */
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
 
-        function loadSettings() {
-            const saved = localStorage.getItem('arcGameSettings');
-            if (saved) {
-                const settings = JSON.parse(saved);
-                document.getElementById('speedSlider').value = settings.speed || 5;
-                document.getElementById('volumeSlider').value = settings.volume || 50;
-                document.getElementById('opacitySlider').value = settings.opacity || 75;
-                
-                // Aplicar opacidade
-                document.getElementById('leftPanel').style.opacity = settings.opacity / 100;
-                document.getElementById('rightPanel').style.opacity = settings.opacity / 100;
+    const Game = {
+        bubbles: [],
+        bullet: { 
+            x: 0, 
+            y: 0, 
+            r: 21, // Increased by 50% (from 14 to 21)
+            dx: 0, 
+            dy: 0, 
+            active: false, 
+            color: '#fff' 
+        },
+        isCharging: false,
+        power: 0,
+        maxPower: 20,
+        maxSpeed: 25,
+        friction: 0.992,
+        
+        init() {
+            this.resize();
+            window.addEventListener('resize', () => this.resize());
+            this.generateLevel();
+            this.resetBullet();
+            updateFPS();
+            this.loop();
+        },
+        
+        resize() {
+            const parent = canvas.parentElement;
+            if (!parent) return;
+            
+            canvas.width = parent.clientWidth;
+            canvas.height = parent.clientHeight;
+            canvas.style.width = `${canvas.width}px`;
+            canvas.style.height = `${canvas.height}px`;
+            
+            // Regenerate level when resizing to adjust bubble layout
+            if (gameInitialized && gameRunning) {
+                this.generateLevel();
             }
-        }
-
-        // ========== EVENT LISTENERS ==========
-        function setupEventListeners() {
-            // Botões principais
-            elements.btnConnect.addEventListener('click', connectWallet);
-            elements.btnStart.addEventListener('click', startGame);
-            elements.btnReset.addEventListener('click', resetGame);
+        },
+        
+        generateLevel() {
+            const colors = ["#00ffaa", "#00aaff", "#ffaa00", "#ff4444", "#aa00ff"];
+            this.bubbles = [];
             
-            // Controles de teclado
-            document.addEventListener('keydown', (e) => {
-                if (!isGameRunning) return;
-                
-                switch(e.key) {
-                    case 'ArrowLeft':
-                        moveCannon('left');
-                        break;
-                    case 'ArrowRight':
-                        moveCannon('right');
-                        break;
-                    case ' ':
-                    case 'Spacebar':
-                        shootBubble();
-                        e.preventDefault();
-                        break;
-                    case 'Escape':
-                        if (isGameRunning) pauseGame();
-                        else startGame();
-                        break;
-                }
-            });
+            // Dynamic bubble sizing based on canvas dimensions
+            const bubbleRadius = Math.min(27, Math.max(20, Math.floor(Math.min(canvas.width, canvas.height) / 30)));
             
-            // Controles de mouse/touch no canvas
-            canvas.addEventListener('click', shootBubble);
-            canvas.addEventListener('mousemove', (e) => {
-                if (!isGameRunning) return;
-                
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const centerX = canvas.width / 2;
-                
-                // Calcular ângulo baseado na posição do mouse
-                cannonAngle = (x - centerX) / 100;
-                cannonAngle = Math.max(-Math.PI/2, Math.min(Math.PI/2, cannonAngle));
-            });
+            // Calculate optimal spacing to fill the entire width
+            const bubbleDiameter = bubbleRadius * 2;
+            const horizontalSpacing = bubbleDiameter * 1.1; // 10% spacing between bubbles
+            const verticalSpacing = bubbleDiameter * 0.9; // Slightly tighter vertical spacing
             
-            // Detectar mudanças na MetaMask
-            if (window.ethereum) {
-                window.ethereum.on('accountsChanged', (accounts) => {
-                    if (accounts.length === 0) {
-                        // Desconectado
-                        provider = null;
-                        signer = null;
-                        userAddress = null;
-                        updateUI(false);
-                        pauseGame();
-                    } else {
-                        // Conta trocada
-                        userAddress = accounts[0];
-                        updateUI(true);
-                        updateBalance();
+            // Calculate number of columns to fill the width
+            const horizontalMargin = Math.max(30, canvas.width * 0.05); // 5% margin or 30px minimum
+            const availableWidth = canvas.width - (2 * horizontalMargin);
+            const cols = Math.max(5, Math.floor(availableWidth / horizontalSpacing));
+            
+            // Recalculate horizontal spacing to perfectly distribute bubbles
+            const actualHorizontalSpacing = availableWidth / Math.max(1, cols);
+            
+            // Calculate number of rows based on level and canvas height
+            const verticalMargin = Math.max(40, canvas.height * 0.1); // 10% margin or 40px minimum
+            const availableHeight = canvas.height * 0.5; // Use top 50% of canvas for bubbles
+            const rows = Math.max(3, Math.min(8 + state.level, Math.floor(availableHeight / verticalSpacing)));
+            
+            // Center the grid horizontally
+            const startX = horizontalMargin + (actualHorizontalSpacing - bubbleDiameter) / 2;
+            const startY = verticalMargin;
+            
+            for(let r = 0; r < rows; r++) {
+                // Offset every other row for honeycomb effect
+                const rowOffset = (r % 2) ? actualHorizontalSpacing / 2 : 0;
+                
+                for(let c = 0; c < cols; c++) {
+                    const x = startX + c * actualHorizontalSpacing + rowOffset;
+                    const y = startY + r * verticalSpacing;
+                    
+                    // Make sure bubbles don't go off screen
+                    if (x + bubbleRadius > canvas.width - horizontalMargin) {
+                        continue;
                     }
-                });
+                    
+                    this.bubbles.push({
+                        x: x,
+                        y: y,
+                        r: bubbleRadius,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        active: true
+                    });
+                }
+            }
+            
+            // If we have too few bubbles, add an extra row
+            if (this.bubbles.length < 15) {
+                for(let c = 0; c < cols; c++) {
+                    const x = startX + c * actualHorizontalSpacing + ((rows % 2) ? actualHorizontalSpacing / 2 : 0);
+                    const y = startY + rows * verticalSpacing;
+                    
+                    if (x + bubbleRadius > canvas.width - horizontalMargin) {
+                        continue;
+                    }
+                    
+                    this.bubbles.push({
+                        x: x,
+                        y: y,
+                        r: bubbleRadius,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        active: true
+                    });
+                }
+            }
+        },
+        
+        resetBullet() {
+            this.bullet.active = false;
+            this.bullet.x = canvas.width / 2;
+            this.bullet.y = canvas.height - 70;
+            this.bullet.dx = 0;
+            this.bullet.dy = 0;
+        },
+        
+        update() {
+            if (!gameRunning || gamePaused) return;
+            
+            updateFPS();
+            
+            if (this.isCharging) {
+                this.power = Math.min(this.maxPower, this.power + 0.25);
+                ui.power.style.width = `${(this.power / this.maxPower) * 100}%`;
+            }
+            
+            if (this.bullet.active) {
+                this.bullet.dx *= this.friction;
+                this.bullet.dy *= this.friction;
                 
-                window.ethereum.on('chainChanged', () => {
-                    location.reload();
-                });
+                const speed = Math.hypot(this.bullet.dx, this.bullet.dy);
+                if (speed > this.maxSpeed) {
+                    this.bullet.dx = (this.bullet.dx / speed) * this.maxSpeed;
+                    this.bullet.dy = (this.bullet.dy / speed) * this.maxSpeed;
+                }
+                
+                this.bullet.x += this.bullet.dx;
+                this.bullet.y += this.bullet.dy;
+                
+                if (this.bullet.x - this.bullet.r < 0) {
+                    this.bullet.x = this.bullet.r;
+                    this.bullet.dx *= -0.95;
+                } else if (this.bullet.x + this.bullet.r > canvas.width) {
+                    this.bullet.x = canvas.width - this.bullet.r;
+                    this.bullet.dx *= -0.95;
+                }
+                
+                if (this.bullet.y - this.bullet.r < 0) {
+                    this.bullet.y = this.bullet.r;
+                    this.bullet.dy *= -0.95;
+                }
+                
+                if (this.bullet.y > canvas.height) {
+                    state.combo = 1;
+                    this.resetBullet();
+                    showNotification("Combo lost!", "error");
+                }
+                
+                for (let i = this.bubbles.length - 1; i >= 0; i--) {
+                    const b = this.bubbles[i];
+                    if (!b.active) continue;
+                    
+                    const dx = this.bullet.x - b.x;
+                    const dy = this.bullet.y - b.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < this.bullet.r + b.r) {
+                        b.active = false;
+                        this.bullet.active = false;
+                        
+                        playSound('pop');
+                        createParticles(b.x, b.y, b.color, 15);
+                        
+                        state.combo++;
+                        state.maxCombo = Math.max(state.maxCombo, state.combo);
+                        state.score += 10 * state.combo;
+                        state.balance += 0.0001 * state.combo;
+                        
+                        if (state.combo >= 5) {
+                            state.score += 50;
+                            showNotification(`COMBO x${state.combo}! +50 bonus`, "success");
+                        }
+                        
+                        updateUI();
+                        this.resetBullet();
+                        break;
+                    }
+                }
             }
-        }
-
-        // ========== FUNÇÕES DE INICIALIZAÇÃO ==========
-        function hideStartOverlay() {
-            elements.startOverlay.style.display = 'none';
-        }
-
-        function init() {
-            // Configurar canvas
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
             
-            // Carregar configurações salvas
-            loadSettings();
+            const activeBubbles = this.bubbles.filter(b => b.active).length;
+            if (activeBubbles === 0) {
+                state.level++;
+                state.score += 100 * state.level;
+                state.balance += 0.001 * state.level;
+                playSound('level');
+                showNotification(`Level ${state.level} completed! +${100 * state.level} points`, "success");
+                this.generateLevel();
+                this.resetBullet();
+                updateUI();
+            }
+        },
+        
+        draw() {
+            if (!gameRunning || !ctx) return;
             
-            // Configurar event listeners
-            setupEventListeners();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Iniciar loop do jogo
-            requestAnimationFrame(gameLoop);
+            // Gradient background with 80% transparency
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, 'rgba(0, 10, 20, 0.4)');
+            gradient.addColorStop(1, 'rgba(0, 20, 40, 0.4)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Mostrar overlay inicial
-            elements.startOverlay.style.display = 'block';
-            
-            // Verificar se já está conectado
-            if (window.ethereum && window.ethereum.selectedAddress) {
-                connectWallet();
+            // Background grid (if enabled)
+            if (window.showGrid) {
+                ctx.strokeStyle = 'rgba(0, 255, 170, 0.15)';
+                ctx.lineWidth = 1;
+                for(let x = 0; x < canvas.width; x += 40) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                for(let y = 0; y < canvas.height; y += 40) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
             }
             
-            console.log('🎮 ARC Bubble Shooter inicializado!');
+            // Draw bubbles with optimized layout
+            this.bubbles.forEach(b => {
+                if (!b.active) return;
+                
+                const glow = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r * 1.5);
+                glow.addColorStop(0, b.color);
+                glow.addColorStop(0.7, b.color.replace(')', ', 0.7)').replace('rgb', 'rgba'));
+                glow.addColorStop(1, 'transparent');
+                
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                ctx.fillStyle = glow;
+                ctx.fill();
+                
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                // Bubble reflection
+                ctx.beginPath();
+                ctx.arc(b.x - b.r * 0.3, b.y - b.r * 0.3, b.r * 0.3, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.fill();
+                
+                // Extra glow for larger bubbles
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.r * 1.1, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+            
+            // Draw bullet (also increased)
+            if (this.bullet.active || this.isCharging) {
+                const bulletGlow = ctx.createRadialGradient(
+                    this.bullet.x, this.bullet.y, 0,
+                    this.bullet.x, this.bullet.y, this.bullet.r * 2
+                );
+                bulletGlow.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+                bulletGlow.addColorStop(0.5, 'rgba(255, 255, 255, 0.3)');
+                bulletGlow.addColorStop(1, 'transparent');
+                
+                ctx.beginPath();
+                ctx.arc(this.bullet.x, this.bullet.y, this.bullet.r * 1.5, 0, Math.PI * 2);
+                ctx.fillStyle = bulletGlow;
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(this.bullet.x, this.bullet.y, this.bullet.r, 0, Math.PI * 2);
+                ctx.fillStyle = this.bullet.color;
+                ctx.fill();
+                
+                // Bullet reflection
+                ctx.beginPath();
+                ctx.arc(this.bullet.x - this.bullet.r * 0.3, this.bullet.y - this.bullet.r * 0.3, this.bullet.r * 0.3, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.fill();
+                
+                if (this.isCharging) {
+                    ctx.beginPath();
+                    ctx.moveTo(this.bullet.x, this.bullet.y);
+                    ctx.lineTo(mouseX, mouseY);
+                    ctx.strokeStyle = 'rgba(0, 255, 170, 0.4)';
+                    ctx.setLineDash([5, 5]);
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            }
+            
+            if (this.isCharging && this.power > 0) {
+                const powerRadius = this.power * 2;
+                ctx.beginPath();
+                ctx.arc(this.bullet.x, this.bullet.y, powerRadius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(255, ${255 - (this.power * 10)}, 0, 0.5)`;
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+        },
+        
+        loop() {
+            this.update();
+            this.draw();
+            requestAnimationFrame(() => this.loop());
         }
+    };
 
-        // ========== INICIAR APLICAÇÃO ==========
-        window.addEventListener('load', init);
+    /* ===== MOUSE CONTROLS ===== */
+    let mouseX = 0;
+    let mouseY = 0;
+
+    canvas.addEventListener("mousemove", e => {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
+    });
+
+    canvas.addEventListener("mousedown", () => { 
+        if(signed && gameRunning && !gamePaused) {
+            Game.isCharging = true;
+            playSound('shoot');
+        }
+    });
+
+    canvas.addEventListener("mouseup", () => {
+        if (!Game.isCharging) return;
+        Game.isCharging = false;
+        
+        const angle = Math.atan2(mouseY - Game.bullet.y, mouseX - Game.bullet.x);
+        const speed = 5 + Game.power;
+        Game.bullet.dx = Math.cos(angle) * speed;
+        Game.bullet.dy = Math.sin(angle) * speed;
+        Game.bullet.active = true;
+        Game.power = 0;
+        ui.power.style.width = "0%";
+    });
+
+    /* ===== CUSTOMIZATION SYSTEM ===== */
+    const themes = {
+        default: {
+            bodyBg: 'linear-gradient(135deg, rgba(10, 10, 10, 0.8) 0%, rgba(0, 26, 26, 0.8) 100%)',
+            gameBg: 'linear-gradient(145deg, rgba(0,0,0,0.8), rgba(20,20,20,0.8))',
+            bubbleColors: ['#00ffaa', '#00aaff', '#ffaa00', '#ff4444', '#aa00ff']
+        },
+        space: {
+            bodyBg: 'linear-gradient(135deg, rgba(0, 0, 51, 0.8) 0%, rgba(0, 0, 102, 0.8) 100%)',
+            gameBg: 'linear-gradient(145deg, rgba(10,10,30,0.8), rgba(0,0,40,0.8))',
+            bubbleColors: ['#00ffff', '#ff00ff', '#ffff00', '#00ff88', '#ff8800']
+        },
+        matrix: {
+            bodyBg: 'linear-gradient(135deg, rgba(0, 26, 0, 0.8) 0%, rgba(0, 51, 0, 0.8) 100%)',
+            gameBg: 'linear-gradient(145deg, rgba(0,20,0,0.8), rgba(0,40,0,0.8))',
+            bubbleColors: ['#00ff00', '#00aa00', '#00ff88', '#88ff00', '#00ffaa']
+        },
+        nebula: {
+            bodyBg: 'linear-gradient(135deg, rgba(51, 0, 51, 0.8) 0%, rgba(102, 0, 102, 0.8) 100%)',
+            gameBg: 'linear-gradient(145deg, rgba(40,0,40,0.8), rgba(20,0,60,0.8))',
+            bubbleColors: ['#ff00ff', '#ff0088', '#8800ff', '#ff8800', '#00ffff']
+        },
+        circuits: {
+            bodyBg: 'linear-gradient(135deg, rgba(26, 0, 26, 0.8) 0%, rgba(51, 0, 51, 0.8) 100%)',
+            gameBg: 'linear-gradient(145deg, rgba(20,0,20,0.8), rgba(40,0,40,0.8))',
+            bubbleColors: ['#ff5500', '#ffaa00', '#00aaff', '#aa00ff', '#00ffaa']
+        },
+        abstract: {
+            bodyBg: 'linear-gradient(135deg, rgba(51, 26, 0, 0.8) 0%, rgba(102, 51, 0, 0.8) 100%)',
+            gameBg: 'linear-gradient(145deg, rgba(30,10,0,0.8), rgba(50,20,0,0.8))',
+            bubbleColors: ['#ff0066', '#00ccff', '#ffcc00', '#66ff00', '#cc00ff']
+        },
+        solid_black: {
+            bodyBg: 'rgba(0, 0, 0, 0.8)',
+            gameBg: 'linear-gradient(145deg, rgba(0,0,0,0.8), rgba(10,10,10,0.8))',
+            bubbleColors: ['#00ffaa', '#00aaff', '#ffaa00', '#ff4444', '#aa00ff']
+        },
+        solid_blue: {
+            bodyBg: 'rgba(0, 0, 48, 0.8)',
+            gameBg: 'linear-gradient(145deg, rgba(0,0,48,0.8), rgba(0,0,96,0.8))',
+            bubbleColors: ['#00ffff', '#0088ff', '#00ffaa', '#ff8800', '#ff00ff']
+        },
+        solid_purple: {
+            bodyBg: 'rgba(10, 0, 26, 0.8)',
+            gameBg: 'linear-gradient(145deg, rgba(10,0,26,0.8), rgba(26,0,58,0.8))',
+            bubbleColors: ['#aa00ff', '#ff00aa', '#00ffaa', '#ffaa00', '#00aaff']
+        },
+        gradient_blue: {
+            bodyBg: 'linear-gradient(135deg, rgba(0, 0, 102, 0.8) 0%, rgba(0, 0, 51, 0.8) 100%)',
+            gameBg: 'linear-gradient(145deg, rgba(0,0,50,0.8), rgba(0,0,80,0.8))',
+            bubbleColors: ['#00aaff', '#0088ff', '#0066ff', '#0044ff', '#0022ff']
+        },
+        gradient_green: {
+            bodyBg: 'linear-gradient(135deg, rgba(0, 51, 0, 0.8) 0%, rgba(0, 26, 0, 0.8) 100%)',
+            gameBg: 'linear-gradient(145deg, rgba(0,30,0,0.8), rgba(0,50,0,0.8))',
+            bubbleColors: ['#00ff88', '#00dd66', '#00bb44', '#009922', '#007700']
+        },
+        gradient_red: {
+            bodyBg: 'linear-gradient(135deg, rgba(102, 0, 0, 0.8) 0%, rgba(51, 0, 0, 0.8) 100%)',
+            gameBg: 'linear-gradient(145deg, rgba(50,0,0,0.8), rgba(80,0,0,0.8))',
+            bubbleColors: ['#ff4444', '#ff2222', '#ff0000', '#dd0000', '#bb0000']
+        }
+    };
+
+    // Effects variables
+    let particleBgEnabled = false;
+    let bloomEnabled = false;
+    let showGrid = true;
+    let showShadows = true;
+    let particlesAnimationId = null;
+    let particleBgParticles = [];
+
+    /* ===== ANIMATED PARTICLE BACKGROUND ===== */
+    function initParticleBackground() {
+        const canvas = document.getElementById('particleBackground');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // Create particles
+        particleBgParticles = [];
+        const particleCount = Math.min(60, Math.floor((window.innerWidth * window.innerHeight) / 15000));
+        
+        for (let i = 0; i < particleCount; i++) {
+            particleBgParticles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2 + 1,
+                speedX: Math.random() * 0.5 - 0.25,
+                speedY: Math.random() * 0.5 - 0.25,
+                color: `rgba(${Math.random() * 100}, ${Math.random() * 100 + 155}, ${Math.random() * 100 + 155}, ${Math.random() * 0.3 + 0.1})`
+            });
+        }
+        
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Update and draw particles
+            for (let particle of particleBgParticles) {
+                particle.x += particle.speedX;
+                particle.y += particle.speedY;
+                
+                // Bounce on edges
+                if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
+                if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
+                
+                // Draw particle
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fillStyle = particle.color;
+                ctx.fill();
+                
+                // Lines between nearby particles
+                for (let otherParticle of particleBgParticles) {
+                    const dx = particle.x - otherParticle.x;
+                    const dy = particle.y - otherParticle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 80) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0, 255, 170, ${0.1 * (1 - distance/80)})`;
+                        ctx.lineWidth = 0.3;
+                        ctx.moveTo(particle.x, particle.y);
+                        ctx.lineTo(otherParticle.x, otherParticle.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            particlesAnimationId = requestAnimationFrame(animateParticles);
+        }
+        
+        animateParticles();
+        
+        // Resize
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    }
+
+    function removeParticleBackground() {
+        if (particlesAnimationId) {
+            cancelAnimationFrame(particlesAnimationId);
+            particlesAnimationId = null;
+        }
+        const canvas = document.getElementById('particleBackground');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    /* ===== CUSTOMIZATION CONTROLS ===== */
+    
+    // Background theme
+    document.getElementById('gameBgSelect').addEventListener('change', function(e) {
+        const themeName = e.target.value;
+        const theme = themes[themeName];
+        
+        if (theme) {
+            // Apply to body
+            document.body.style.background = theme.bodyBg;
+            
+            // Apply to game container
+            document.getElementById('gameContainer').style.background = theme.gameBg;
+            
+            // Save preference
+            localStorage.setItem('arcTheme', themeName);
+            
+            showNotification(`Theme "${themeName}" applied!`, "success");
+        }
+    });
+
+    // Bubble color
+    document.getElementById('bubbleColor').addEventListener('input', function(e) {
+        const color = e.target.value;
+        localStorage.setItem('bubbleColor', color);
+        
+        showNotification(`Bubble color changed!`, "success");
+    });
+
+    // Animated background
+    document.getElementById('toggleParticleBg').addEventListener('click', function() {
+        particleBgEnabled = !particleBgEnabled;
+        
+        if (particleBgEnabled) {
+            initParticleBackground();
+            this.textContent = '🌟 Disable Animated Background';
+            this.classList.add('active');
+            showNotification('Animated background enabled!', "success");
+        } else {
+            removeParticleBackground();
+            this.textContent = '🌟 Animated Background';
+            this.classList.remove('active');
+            showNotification('Animated background disabled', "info");
+        }
+        
+        localStorage.setItem('particleBgEnabled', particleBgEnabled);
+    });
+
+    // Bloom effect
+    document.getElementById('toggleBloom').addEventListener('click', function() {
+        bloomEnabled = !bloomEnabled;
+        
+        if (bloomEnabled) {
+            canvas.style.filter = 'brightness(1.2) contrast(1.1) saturate(1.3)';
+            this.textContent = '💫 Disable Bloom';
+            this.classList.add('active');
+            showNotification('Bloom effect enabled!', "success");
+        } else {
+            canvas.style.filter = 'none';
+            this.textContent = '💫 Bloom Effect';
+            this.classList.remove('active');
+            showNotification('Bloom effect disabled', "info");
+        }
+        
+        localStorage.setItem('bloomEnabled', bloomEnabled);
+    });
+
+    // Background grid
+    document.getElementById('toggleGrid').addEventListener('click', function() {
+        showGrid = !showGrid;
+        
+        if (showGrid) {
+            this.textContent = '🔲 Disable Grid';
+            this.classList.add('active');
+            showNotification('Background grid enabled!', "success");
+        } else {
+            this.textContent = '🔲 Background Grid';
+            this.classList.remove('active');
+            showNotification('Background grid disabled', "info");
+        }
+        
+        localStorage.setItem('showGrid', showGrid);
+    });
+
+    // Shadows
+    document.getElementById('toggleShadows').addEventListener('click', function() {
+        showShadows = !showShadows;
+        
+        const elements = document.querySelectorAll('.stats, .bar-wrap, .calculator-container, .customization-section');
+        elements.forEach(el => {
+            if (showShadows) {
+                el.style.boxShadow = el.style.boxShadow.includes('inset') ? 
+                    'inset 0 2px 8px rgba(0,0,0,0.5), 0 0 15px rgba(0,255,170,0.2)' :
+                    '0 8px 25px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.2)';
+            } else {
+                el.style.boxShadow = 'none';
+            }
+        });
+        
+        if (showShadows) {
+            this.textContent = '👥 Disable Shadows';
+            this.classList.add('active');
+            showNotification('Shadows enabled!', "success");
+        } else {
+            this.textContent = '👥 Shadows';
+            this.classList.remove('active');
+            showNotification('Shadows disabled', "info");
+        }
+        
+        localStorage.setItem('showShadows', showShadows);
+    });
+
+    // Reset customization
+    document.getElementById('resetCustomization').addEventListener('click', function() {
+        if (confirm("Are you sure you want to reset all customizations?")) {
+            localStorage.removeItem('arcTheme');
+            localStorage.removeItem('bubbleColor');
+            localStorage.removeItem('bloomEnabled');
+            localStorage.removeItem('particleBgEnabled');
+            localStorage.removeItem('showGrid');
+            localStorage.removeItem('showShadows');
+            
+            // Reset to default
+            document.body.style.background = themes.default.bodyBg;
+            document.getElementById('gameContainer').style.background = themes.default.gameBg;
+            canvas.style.filter = 'none';
+            
+            // Reset controls
+            document.getElementById('gameBgSelect').value = 'default';
+            document.getElementById('bubbleColor').value = '#00ffaa';
+            
+            // Remove animated background
+            if (particleBgEnabled) {
+                removeParticleBackground();
+                document.getElementById('toggleParticleBg').textContent = '🌟 Animated Background';
+                document.getElementById('toggleParticleBg').classList.remove('active');
+                particleBgEnabled = false;
+            }
+            
+            // Reset effect buttons
+            document.getElementById('toggleBloom').textContent = '💫 Bloom Effect';
+            document.getElementById('toggleBloom').classList.remove('active');
+            bloomEnabled = false;
+            
+            document.getElementById('toggleGrid').textContent = '🔲 Background Grid';
+            document.getElementById('toggleGrid').classList.remove('active');
+            showGrid = true;
+            
+            document.getElementById('toggleShadows').textContent = '👥 Shadows';
+            document.getElementById('toggleShadows').classList.remove('active');
+            showShadows = true;
+            
+            // Restore shadows
+            const elements = document.querySelectorAll('.stats, .bar-wrap, .calculator-container, .customization-section');
+            elements.forEach(el => {
+                if (el.classList.contains('stats') || el.classList.contains('bar-wrap')) {
+                    el.style.boxShadow = 'inset 0 2px 8px rgba(0,0,0,0.5), 0 0 15px rgba(0,255,170,0.2)';
+                } else {
+                    el.style.boxShadow = '0 8px 25px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.2)';
+                }
+            });
+            
+            showNotification('Customization reset!', "success");
+        }
+    });
+
+    // Load saved preferences
+    window.addEventListener('load', function() {
+        const savedTheme = localStorage.getItem('arcTheme');
+        const savedBubbleColor = localStorage.getItem('bubbleColor');
+        const savedBloom = localStorage.getItem('bloomEnabled');
+        const savedParticleBg = localStorage.getItem('particleBgEnabled');
+        const savedGrid = localStorage.getItem('showGrid');
+        const savedShadows = localStorage.getItem('showShadows');
+        
+        // Load theme
+        if (savedTheme && themes[savedTheme]) {
+            document.body.style.background = themes[savedTheme].bodyBg;
+            document.getElementById('gameContainer').style.background = themes[savedTheme].gameBg;
+            document.getElementById('gameBgSelect').value = savedTheme;
+        }
+        
+        // Load bubble color
+        if (savedBubbleColor) {
+            document.getElementById('bubbleColor').value = savedBubbleColor;
+        }
+        
+        // Load Bloom effect
+        if (savedBloom === 'true') {
+            bloomEnabled = true;
+            canvas.style.filter = 'brightness(1.2) contrast(1.1) saturate(1.3)';
+            document.getElementById('toggleBloom').textContent = '💫 Disable Bloom';
+            document.getElementById('toggleBloom').classList.add('active');
+        }
+        
+        // Load animated background
+        if (savedParticleBg === 'true') {
+            particleBgEnabled = true;
+            initParticleBackground();
+            document.getElementById('toggleParticleBg').textContent = '🌟 Disable Animated Background';
+            document.getElementById('toggleParticleBg').classList.add('active');
+        }
+        
+        // Load grid
+        if (savedGrid === 'false') {
+            showGrid = false;
+            document.getElementById('toggleGrid').textContent = '🔲 Background Grid';
+            document.getElementById('toggleGrid').classList.remove('active');
+        }
+        
+        // Load shadows
+        if (savedShadows === 'false') {
+            showShadows = false;
+            document.getElementById('toggleShadows').textContent = '👥 Shadows';
+            document.getElementById('toggleShadows').classList.remove('active');
+            
+            const elements = document.querySelectorAll('.stats, .bar-wrap, .calculator-container, .customization-section');
+            elements.forEach(el => {
+                el.style.boxShadow = 'none';
+            });
+        }
+    });
+
+    /* ===== CRYPTOCURRENCY TICKER (TOP 20) ===== */
+    async function fetchTopCryptos() {
+        try {
+            const res = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&sparkline=false");
+            const data = await res.json();
+            
+            let tickerHTML = '';
+            data.forEach(crypto => {
+                const symbol = crypto.symbol.toUpperCase();
+                const price = crypto.current_price < 1 ? crypto.current_price.toFixed(6) : crypto.current_price.toFixed(2);
+                const change = crypto.price_change_percentage_24h;
+                const changeClass = change >= 0 ? 'positive' : 'negative';
+                const changeSign = change >= 0 ? '+' : '';
+                const changeFormatted = `${changeSign}${change.toFixed(2)}%`;
+                
+                tickerHTML += `
+                    <span class="crypto-ticker-item">
+                        <span class="symbol">${symbol}</span>
+                        <span class="price">$${price}</span>
+                        <span class="change ${changeClass}">${changeFormatted}</span>
+                    </span> • `;
+            });
+            
+            document.getElementById("tickerTrack").innerHTML = tickerHTML;
+        } catch(e) { 
+            console.error("Error loading cryptocurrencies:", e);
+            // Fallback with static data
+            const fallbackCryptos = [
+                {symbol: 'BTC', price: '45,231.50', change: '+2.34'},
+                {symbol: 'ETH', price: '3,128.75', change: '+1.89'},
+                {symbol: 'BNB', price: '587.20', change: '-0.45'},
+                {symbol: 'SOL', price: '102.30', change: '+5.67'},
+                {symbol: 'XRP', price: '0.6234', change: '+0.89'},
+                {symbol: 'ADA', price: '0.4589', change: '-1.23'},
+                {symbol: 'AVAX', price: '35.67', change: '+3.45'},
+                {symbol: 'DOT', price: '7.89', change: '+0.67'},
+                {symbol: 'DOGE', price: '0.1589', change: '+2.34'},
+                {symbol: 'MATIC', price: '0.9567', change: '-0.89'},
+                {symbol: 'SHIB', price: '0.000025', change: '+1.23'},
+                {symbol: 'TRX', price: '0.1045', change: '+0.45'},
+                {symbol: 'LTC', price: '68.90', change: '-0.34'},
+                {symbol: 'UNI', price: '6.78', change: '+1.56'},
+                {symbol: 'ATOM', price: '9.45', change: '+0.89'},
+                {symbol: 'LINK', price: '14.23', change: '+2.12'},
+                {symbol: 'XLM', price: '0.1234', change: '+0.34'},
+                {symbol: 'ETC', price: '26.78', change: '-1.23'},
+                {symbol: 'ALGO', price: '0.1890', change: '+0.67'},
+                {symbol: 'VET', price: '0.0345', change: '+1.89'}
+            ];
+            
+            let fallbackHTML = '';
+            fallbackCryptos.forEach(crypto => {
+                fallbackHTML += `
+                    <span class="crypto-ticker-item">
+                        <span class="symbol">${crypto.symbol}</span>
+                        <span class="price">$${crypto.price}</span>
+                        <span class="change ${crypto.change.startsWith('+') ? 'positive' : 'negative'}">${crypto.change}%</span>
+                    </span> • `;
+            });
+            
+            document.getElementById("tickerTrack").innerHTML = fallbackHTML;
+        }
+    }
+
+    // Initialize ticker
+    fetchTopCryptos();
+    setInterval(fetchTopCryptos, 60000); // Update every minute
+
+    /* ===== INITIALIZATION ===== */
+    console.log("ARC Bubble Shooter v3.0 - Updated Version");
+    console.log("Applied adjustments:");
+    console.log("- Changed 'ARC Balance' to 'USDC Balance'");
+    console.log("- 80% transparency applied to all background elements");
+    console.log("- Bubbles optimized to fill entire available space");
+    console.log("- Dynamic bubble sizing based on canvas dimensions");
+    console.log("- Honeycomb layout pattern for better coverage");
+    console.log("- Automatic adjustment on window resize");
+    console.log("- 3-column layout (Controls/Game/Settings)");
+    console.log("- Complete Web3 game with MetaMask");
+    console.log("- Integrated calculator in right panel");
+    console.log("- Real-time 20 cryptocurrency ticker");
+    console.log("- Complete customization system");
+    console.log("- 12 different background themes");
+    console.log("- 4 adjustable visual effects");
     </script>
 </body>
 </html>
