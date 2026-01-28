@@ -311,8 +311,8 @@
             100% { left: 100%; }
         }
 
-        /* BUBBLE SHOOTER AREA */
-        .shooter-container {
+        /* BUBBLES GAME AREA */
+        .bubbles-game-container {
             width: 100%;
             background: var(--glass-bg);
             padding: 30px;
@@ -321,98 +321,56 @@
             border: 1px solid var(--glass-border);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             position: relative;
-            min-height: 600px;
             overflow: hidden;
         }
 
-        .bubble-shooter-game {
-            position: relative;
+        .bubbles-main-area {
             width: 100%;
-            height: 500px;
-            border-radius: 10px;
-            overflow: hidden;
+            min-height: 500px;
             background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
         }
 
-        .cannon {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 80px;
-            background: linear-gradient(45deg, #555, #333);
-            border-radius: 50% 50% 0 0;
-            z-index: 10;
+        .bubbles-grid-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        .cannon::before {
-            content: '';
-            position: absolute;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 40px;
-            background: linear-gradient(45deg, #777, #555);
-            border-radius: 50% 50% 0 0;
-        }
-
-        .cannon-barrel {
-            position: absolute;
-            top: -60px;
-            left: 50%;
-            transform: translateX(-50%) rotate(0deg);
-            width: 20px;
-            height: 80px;
-            background: linear-gradient(45deg, #888, #666);
-            border-radius: 10px;
-            transform-origin: bottom center;
-            transition: transform 0.1s;
-        }
-
-        .shooting-bubble {
-            position: absolute;
-            bottom: 100px;
-            left: 50%;
-            transform: translate(-50%, 50%);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            z-index: 5;
-            transition: all 0.3s ease;
-        }
-
-        .bubble-grid {
-            position: absolute;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
+        .bubbles-grid {
             display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 10px;
-            width: 90%;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 15px;
+            margin: 0 auto;
         }
 
-        .target-bubble {
-            width: 40px;
-            height: 40px;
+        .bubble {
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 1.2rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: inset 0 -5px 15px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 
+                inset 0 -5px 15px rgba(0, 0, 0, 0.3),
+                0 5px 15px rgba(0, 0, 0, 0.3);
             position: relative;
             overflow: hidden;
             user-select: none;
-            animation: float 3s ease-in-out infinite;
+            border: 3px solid transparent;
         }
 
-        .target-bubble::before {
+        .bubble::before {
             content: '';
             position: absolute;
             top: -10px;
@@ -421,6 +379,37 @@
             bottom: -10px;
             background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, transparent 70%);
             opacity: 0.6;
+        }
+
+        .bubble:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 
+                inset 0 -5px 15px rgba(0, 0, 0, 0.3),
+                0 10px 25px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .bubble:active {
+            transform: scale(0.95);
+        }
+
+        .bubble-letter {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
+
+        .bubble-value {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 5px;
+            z-index: 2;
+            font-family: 'Courier New', monospace;
         }
 
         /* RELÓGIO TRANSPARENTE */
@@ -560,7 +549,7 @@
             font-family: 'Courier New', monospace;
         }
 
-        /* CALCULATOR - CORRIGIDA */
+        /* CALCULATOR */
         .calculator {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -586,6 +575,21 @@
         .calc-btn:hover {
             background: rgba(255, 255, 255, 0.15);
             transform: translateY(-3px);
+        }
+
+        .calculator-display {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.5rem;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            overflow: hidden;
         }
 
         /* GAME BUTTONS */
@@ -823,24 +827,13 @@
             animation: float 3s ease-in-out infinite;
         }
 
-        @keyframes shoot {
-            0% { transform: translate(-50%, 50%) scale(0.5); opacity: 0; }
-            10% { transform: translate(-50%, 50%) scale(1); opacity: 1; }
-            90% { transform: translate(var(--tx), var(--ty)) scale(1); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(1.5); opacity: 0; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
-        .shoot-animation {
-            animation: shoot 0.8s ease-out forwards;
-        }
-
-        @keyframes explode {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(2); opacity: 0; }
-        }
-
-        .explode-animation {
-            animation: explode 0.5s ease-out forwards;
+        .pulse-animation {
+            animation: pulse 0.5s ease;
         }
 
         /* RESPONSIVE */
@@ -853,14 +846,24 @@
                 min-width: 100%;
             }
             
-            .bubble-grid {
-                grid-template-columns: repeat(8, 1fr);
+            .bubbles-grid {
+                grid-template-columns: repeat(6, 1fr);
             }
         }
 
         @media (max-width: 768px) {
-            .bubble-grid {
-                grid-template-columns: repeat(6, 1fr);
+            .bubbles-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            
+            .bubble {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .bubble-letter {
+                font-size: 1.5rem;
             }
             
             .controls-grid {
@@ -886,8 +889,17 @@
         }
 
         @media (max-width: 480px) {
-            .bubble-grid {
-                grid-template-columns: repeat(4, 1fr);
+            .bubbles-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .bubble {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .bubble-letter {
+                font-size: 1.2rem;
             }
             
             .btn {
@@ -948,7 +960,7 @@
         <!-- HEADER -->
         <div class="header">
             <h1>ARC BUBBLE SHOOTER</h1>
-            <p>Estoure bolhas para ganhar USDC | Relógio em tempo real</p>
+            <p>Clique nas bolhas para ganhar USDC | Relógio em tempo real</p>
         </div>
 
         <!-- STATUS BAR -->
@@ -1024,20 +1036,13 @@
             </div>
 
             <div class="center-panel">
-                <div class="shooter-container">
-                    <h3 class="section-title"><i class="fas fa-crosshairs"></i> BUBBLE SHOOTER</h3>
-                    <div class="bubble-shooter-game" id="bubble-shooter">
-                        <!-- Canhão -->
-                        <div class="cannon">
-                            <div class="cannon-barrel" id="cannon-barrel"></div>
-                        </div>
-                        
-                        <!-- Bolha que está sendo atirada -->
-                        <div class="shooting-bubble" id="shooting-bubble" style="display: none;"></div>
-                        
-                        <!-- Grade de bolhas alvo -->
-                        <div class="bubble-grid" id="bubble-grid">
-                            <!-- Bolhas serão geradas por JavaScript -->
+                <div class="bubbles-game-container">
+                    <h3 class="section-title"><i class="fas fa-bubbles"></i> BUBBLE SHOOTER</h3>
+                    <div class="bubbles-main-area">
+                        <div class="bubbles-grid-container">
+                            <div class="bubbles-grid" id="bubbles-grid">
+                                <!-- Bolhas serão geradas por JavaScript -->
+                            </div>
                         </div>
                     </div>
                     
@@ -1055,7 +1060,6 @@
             <div class="right-panel">
                 <h3 class="section-title"><i class="fas fa-calculator"></i> CALCULATOR</h3>
                 <div class="calculator" id="calculator">
-                    <!-- Calculadora com números e operadores -->
                     <button class="calc-btn" onclick="calcInput('7')">7</button>
                     <button class="calc-btn" onclick="calcInput('8')">8</button>
                     <button class="calc-btn" onclick="calcInput('9')">9</button>
@@ -1076,7 +1080,7 @@
                     <button class="calc-btn" onclick="clearCalc()" style="grid-column: span 2; background: var(--secondary-color);">CE</button>
                 </div>
                 
-                <div class="calculator-display" style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; text-align: right; font-family: monospace; font-size: 1.5rem; min-height: 50px;" id="calc-display">
+                <div class="calculator-display" id="calc-display">
                     0
                 </div>
                 
@@ -1172,6 +1176,8 @@
             '#118ab2', '#9d4edd', '#ef476f', '#ff9e00'
         ];
         
+        const usdcValues = [0.001, 0.002, 0.003, 0.004, 0.005];
+        
         let selectedColor = '#ff6b6b';
         let gameActive = false;
         let score = 100;
@@ -1179,14 +1185,13 @@
         let usdcBalance = 0;
         let gameTimer = 0;
         let timerInterval;
-        let totalBubbles = 40;
+        let totalBubbles = 48; // 8x6 grid
         let bubblesPopped = 0;
         let walletConnected = false;
         let walletAddress = '';
         let assetsData = [];
         let assetsInterval;
         let calcValue = '0';
-        let cannonAngle = 0;
 
         // Dados de ativos em tempo real
         const initialAssets = [
@@ -1453,17 +1458,16 @@
             if (secondHand) secondHand.style.transform = `translateX(-50%) rotate(${secondDeg}deg)`;
         }
 
-        // Sistema Bubble Shooter
+        // Sistema de bolhas
         function generateBubbles() {
-            const grid = document.getElementById('bubble-grid');
+            const grid = document.getElementById('bubbles-grid');
             grid.innerHTML = '';
             
-            // Criar bolhas alvo
+            // Criar bolhas coloridas com letras aleatórias e valores USDC
             for (let i = 0; i < totalBubbles; i++) {
                 const bubble = document.createElement('div');
-                bubble.className = 'target-bubble floating';
+                bubble.className = 'bubble floating';
                 bubble.dataset.index = i;
-                bubble.dataset.popped = 'false';
                 
                 // Cor aleatória
                 const colorIndex = Math.floor(Math.random() * bubbleColors.length);
@@ -1472,83 +1476,43 @@
                 
                 // Letra aleatória (A-Z)
                 const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-                bubble.textContent = letter;
-                bubble.dataset.color = color;
+                bubble.dataset.letter = letter;
+                
+                // Valor USDC aleatório
+                const usdcValue = usdcValues[Math.floor(Math.random() * usdcValues.length)];
+                bubble.dataset.value = usdcValue;
+                
+                // Conteúdo da bolha
+                bubble.innerHTML = `
+                    <div class="bubble-letter">${letter}</div>
+                    <div class="bubble-value">${usdcValue.toFixed(3)} USDC</div>
+                `;
                 
                 // Adicionar evento de clique
-                bubble.addEventListener('click', function(e) {
+                bubble.addEventListener('click', function() {
                     if (!gameActive) {
                         showNotification('Inicie o jogo primeiro!', 'error');
                         return;
                     }
                     
-                    if (this.dataset.popped === 'true') return;
-                    
-                    // Calcular ângulo do canhão
-                    const cannon = document.getElementById('cannon-barrel');
-                    const cannonRect = cannon.getBoundingClientRect();
-                    const bubbleRect = this.getBoundingClientRect();
-                    
-                    const dx = bubbleRect.left + bubbleRect.width/2 - (cannonRect.left + cannonRect.width/2);
-                    const dy = bubbleRect.top + bubbleRect.height/2 - (cannonRect.top + cannonRect.height/2);
-                    
-                    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-                    cannon.style.transform = `translateX(-50%) rotate(${angle - 90}deg)`;
-                    
-                    // Atirar bolha
-                    shootBubble(this, color, bubbleRect.left + bubbleRect.width/2, bubbleRect.top + bubbleRect.height/2);
+                    popBubble(this);
                 });
                 
                 grid.appendChild(bubble);
             }
         }
 
-        function shootBubble(targetBubble, color, targetX, targetY) {
-            const shootingBubble = document.getElementById('shooting-bubble');
-            const cannon = document.getElementById('cannon-barrel');
-            const cannonRect = cannon.getBoundingClientRect();
-            const gameRect = document.getElementById('bubble-shooter').getBoundingClientRect();
-            
-            // Posicionar bolha no canhão
-            shootingBubble.style.background = `radial-gradient(circle at 30% 30%, ${color}, ${darkenColor(color, 40)})`;
-            shootingBubble.style.display = 'block';
-            shootingBubble.style.left = `${cannonRect.left + cannonRect.width/2 - gameRect.left}px`;
-            shootingBubble.style.bottom = `${cannonRect.top + cannonRect.height/2 - gameRect.top}px`;
-            
-            // Calcular trajetória
-            const startX = cannonRect.left + cannonRect.width/2 - gameRect.left;
-            const startY = gameRect.height - (cannonRect.top + cannonRect.height/2 - gameRect.top);
-            const endX = targetX - gameRect.left;
-            const endY = targetY - gameRect.top;
-            
-            // Definir variáveis CSS para animação
-            shootingBubble.style.setProperty('--tx', `${endX}px`);
-            shootingBubble.style.setProperty('--ty', `${endY}px`);
-            
-            // Iniciar animação de tiro
-            shootingBubble.classList.remove('shoot-animation');
-            void shootingBubble.offsetWidth; // Trigger reflow
-            shootingBubble.classList.add('shoot-animation');
-            
-            // Quando a animação terminar, estourar a bolha
-            setTimeout(() => {
-                shootingBubble.style.display = 'none';
-                popBubble(targetBubble);
-            }, 800);
-        }
-
         function popBubble(bubble) {
-            if (bubble.dataset.popped === 'true') return;
-            
-            // Marcar como estourada
-            bubble.dataset.popped = 'true';
-            
-            // Animação de explosão
+            // Animação de estouro
             bubble.classList.remove('floating');
-            bubble.classList.add('explode-animation');
+            bubble.classList.add('pop-animation');
+            
+            // Obter valor USDC da bolha
+            const usdcValue = parseFloat(bubble.dataset.value);
+            const letter = bubble.dataset.letter;
             
             // Atualizar pontuação
-            score += 15;
+            score += 10;
             combo++;
             bubblesPopped++;
             
@@ -1558,25 +1522,46 @@
             document.getElementById('bubbles-popped').textContent = bubblesPopped;
             
             // Adicionar USDC
-            usdcBalance += 0.001;
+            usdcBalance += usdcValue;
             document.getElementById('usdc-balance').textContent = usdcBalance.toFixed(3) + ' USDC';
             
             // Efeito sonoro simulado
             playPopSound();
             
-            // Recriar bolha após animação
+            // Recriar bolha após animação com NOVA letra e valor ALEATÓRIOS
             setTimeout(() => {
-                bubble.classList.remove('explode-animation');
+                bubble.classList.remove('pop-animation');
                 bubble.classList.add('floating');
                 
-                // Nova cor e letra
+                // Nova cor aleatória
                 const colorIndex = Math.floor(Math.random() * bubbleColors.length);
                 const color = bubbleColors[colorIndex];
                 bubble.style.background = `radial-gradient(circle at 30% 30%, ${color}, ${darkenColor(color, 40)})`;
-                bubble.textContent = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-                bubble.dataset.color = color;
-                bubble.dataset.popped = 'false';
-            }, 500);
+                
+                // NOVA letra aleatória (diferente da anterior)
+                let newLetter;
+                do {
+                    newLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+                } while (newLetter === letter); // Garantir que seja diferente
+                
+                bubble.dataset.letter = newLetter;
+                
+                // NOVO valor USDC aleatório
+                const newUsdcValue = usdcValues[Math.floor(Math.random() * usdcValues.length)];
+                bubble.dataset.value = newUsdcValue;
+                
+                // Atualizar conteúdo
+                bubble.innerHTML = `
+                    <div class="bubble-letter">${newLetter}</div>
+                    <div class="bubble-value">${newUsdcValue.toFixed(3)} USDC</div>
+                `;
+                
+                // Efeito visual
+                bubble.classList.add('pulse-animation');
+                setTimeout(() => {
+                    bubble.classList.remove('pulse-animation');
+                }, 500);
+            }, 400);
         }
 
         function darkenColor(color, percent) {
@@ -1646,7 +1631,7 @@
             // Gerar novas bolhas
             generateBubbles();
             
-            showNotification('Jogo iniciado! Clique nas bolhas para atirar e estourá-las!', 'success');
+            showNotification('Jogo iniciado! Clique nas bolhas para estourá-las e ganhar USDC!', 'success');
         }
 
         function resetGame() {
@@ -1756,30 +1741,16 @@
             const checkbox = document.getElementById('enable-color');
             checkbox.addEventListener('change', function() {
                 if (this.checked) {
-                    document.querySelectorAll('.target-bubble').forEach(bubble => {
+                    document.querySelectorAll('.bubble').forEach(bubble => {
                         bubble.style.filter = 'saturate(1)';
                     });
                     showNotification('Efeitos de cor ativados!', 'success');
                 } else {
-                    document.querySelectorAll('.target-bubble').forEach(bubble => {
+                    document.querySelectorAll('.bubble').forEach(bubble => {
                         bubble.style.filter = 'grayscale(1)';
                     });
                     showNotification('Efeitos de cor desativados!', 'info');
                 }
-            });
-            
-            // Movimento do mouse para controlar o canhão
-            document.getElementById('bubble-shooter').addEventListener('mousemove', function(e) {
-                const cannon = document.getElementById('cannon-barrel');
-                const rect = this.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.bottom - 100; // Posição do canhão
-                
-                const dx = e.clientX - centerX;
-                const dy = e.clientY - centerY;
-                
-                const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-                cannon.style.transform = `translateX(-50%) rotate(${angle - 90}deg)`;
             });
             
             // Adicionar estilos de animação para notificações
