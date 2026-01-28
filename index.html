@@ -1416,24 +1416,79 @@
             canvas.height = parent.clientHeight;
             canvas.style.width = `${canvas.width}px`;
             canvas.style.height = `${canvas.height}px`;
+            
+            // Regenerate level when resizing to adjust bubble layout
+            if (gameInitialized && gameRunning) {
+                this.generateLevel();
+            }
         },
         
         generateLevel() {
             const colors = ["#00ffaa", "#00aaff", "#ffaa00", "#ff4444", "#aa00ff"];
             this.bubbles = [];
-            const rows = 5 + state.level;
-            const cols = Math.max(5, Math.floor(canvas.width / 70));
-            const offset = canvas.width > 800 ? 60 : 40;
+            
+            // Dynamic bubble sizing based on canvas dimensions
+            const bubbleRadius = Math.min(27, Math.max(20, Math.floor(Math.min(canvas.width, canvas.height) / 30)));
+            
+            // Calculate optimal spacing to fill the entire width
+            const bubbleDiameter = bubbleRadius * 2;
+            const horizontalSpacing = bubbleDiameter * 1.1; // 10% spacing between bubbles
+            const verticalSpacing = bubbleDiameter * 0.9; // Slightly tighter vertical spacing
+            
+            // Calculate number of columns to fill the width
+            const horizontalMargin = Math.max(30, canvas.width * 0.05); // 5% margin or 30px minimum
+            const availableWidth = canvas.width - (2 * horizontalMargin);
+            const cols = Math.max(5, Math.floor(availableWidth / horizontalSpacing));
+            
+            // Recalculate horizontal spacing to perfectly distribute bubbles
+            const actualHorizontalSpacing = availableWidth / Math.max(1, cols);
+            
+            // Calculate number of rows based on level and canvas height
+            const verticalMargin = Math.max(40, canvas.height * 0.1); // 10% margin or 40px minimum
+            const availableHeight = canvas.height * 0.5; // Use top 50% of canvas for bubbles
+            const rows = Math.max(3, Math.min(8 + state.level, Math.floor(availableHeight / verticalSpacing)));
+            
+            // Center the grid horizontally
+            const startX = horizontalMargin + (actualHorizontalSpacing - bubbleDiameter) / 2;
+            const startY = verticalMargin;
             
             for(let r = 0; r < rows; r++) {
+                // Offset every other row for honeycomb effect
+                const rowOffset = (r % 2) ? actualHorizontalSpacing / 2 : 0;
+                
                 for(let c = 0; c < cols; c++) {
-                    const x = offset + c * 60 + (r % 2 ? 30 : 0);
-                    const y = 60 + r * 50;
+                    const x = startX + c * actualHorizontalSpacing + rowOffset;
+                    const y = startY + r * verticalSpacing;
+                    
+                    // Make sure bubbles don't go off screen
+                    if (x + bubbleRadius > canvas.width - horizontalMargin) {
+                        continue;
+                    }
                     
                     this.bubbles.push({
                         x: x,
                         y: y,
-                        r: 27, // Increased by 50% (from 18 to 27)
+                        r: bubbleRadius,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        active: true
+                    });
+                }
+            }
+            
+            // If we have too few bubbles, add an extra row
+            if (this.bubbles.length < 15) {
+                for(let c = 0; c < cols; c++) {
+                    const x = startX + c * actualHorizontalSpacing + ((rows % 2) ? actualHorizontalSpacing / 2 : 0);
+                    const y = startY + rows * verticalSpacing;
+                    
+                    if (x + bubbleRadius > canvas.width - horizontalMargin) {
+                        continue;
+                    }
+                    
+                    this.bubbles.push({
+                        x: x,
+                        y: y,
+                        r: bubbleRadius,
                         color: colors[Math.floor(Math.random() * colors.length)],
                         active: true
                     });
@@ -1566,7 +1621,7 @@
                 }
             }
             
-            // Draw bubbles (50% larger)
+            // Draw bubbles with optimized layout
             this.bubbles.forEach(b => {
                 if (!b.active) return;
                 
@@ -2134,8 +2189,10 @@
     console.log("Applied adjustments:");
     console.log("- Changed 'ARC Balance' to 'USDC Balance'");
     console.log("- 80% transparency applied to all background elements");
-    console.log("- Bubbles increased by 50% (27px instead of 18px)");
-    console.log("- Bullet increased proportionally (21px instead of 14px)");
+    console.log("- Bubbles optimized to fill entire available space");
+    console.log("- Dynamic bubble sizing based on canvas dimensions");
+    console.log("- Honeycomb layout pattern for better coverage");
+    console.log("- Automatic adjustment on window resize");
     console.log("- 3-column layout (Controls/Game/Settings)");
     console.log("- Complete Web3 game with MetaMask");
     console.log("- Integrated calculator in right panel");
