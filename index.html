@@ -357,16 +357,16 @@
             color: rgba(255, 255, 255, 0.8);
         }
 
-        /* Cryptocurrency Ticker - MODIFIED */
+        /* Cryptocurrency Ticker - MODIFIED (LARGER TEXT 50% & 25% SLOWER) */
         #ticker {
             position: absolute; 
             bottom: 0; 
             width: 100%; 
-            height: 100px; /* DOUBLED SIZE (was 50px) */
+            height: 120px; /* Increased to accommodate larger text */
             background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(20, 20, 20, 0.9));
             border-top: 3px solid rgba(0, 255, 170, 0.8); 
-            padding: 15px 0; 
-            font-size: 16px; 
+            padding: 20px 0; /* More padding for larger text */
+            font-size: 24px; /* 50% LARGER (was 16px) - 16px * 1.5 = 24px */
             z-index: 5;
             overflow: hidden;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8);
@@ -379,10 +379,10 @@
             padding-right: 40px;
             font-family: 'Courier New', monospace;
             color: #ffffff; /* WHITE TEXT */
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.7); 
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7); 
             font-weight: bold;
-            animation: scroll 60s linear infinite; /* 50% SLOWER (was 40s) */
-            padding-top: 10px; 
+            animation: scroll 80s linear infinite; /* 25% SLOWER (was 60s) - 60s * 1.333 = ~80s */
+            padding-top: 15px; /* Adjusted for larger text */
         }
         
         @keyframes scroll { 
@@ -392,38 +392,38 @@
 
         .crypto-ticker-item {
             display: inline-block;
-            margin: 0 25px; 
-            padding: 8px 15px; 
+            margin: 0 30px; /* More margin for larger text */
+            padding: 12px 20px; /* More padding for larger text */
             background: linear-gradient(145deg, rgba(0, 10, 20, 0.9), rgba(0, 20, 40, 0.9));
-            border-radius: 10px;
+            border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.5); 
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); 
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.4); 
             transition: all 0.3s ease;
         }
         
         .crypto-ticker-item:hover {
             transform: translateY(-3px);
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 35px rgba(255, 255, 255, 0.7);
         }
         
         .crypto-ticker-item .symbol {
             color: #ffffff; /* WHITE */
             font-weight: bold;
-            margin-right: 8px;
-            font-size: 16px; 
+            margin-right: 10px;
+            font-size: 26px; /* 50% LARGER (was 16px) */
         }
         
         .crypto-ticker-item .price {
             color: #ffffff; /* WHITE */
-            font-size: 15px;
+            font-size: 24px; /* 50% LARGER (was 15px) */
             font-weight: bold;
         }
         
         .crypto-ticker-item .change {
-            margin-left: 10px;
-            font-size: 12px;
-            padding: 3px 8px;
-            border-radius: 5px;
+            margin-left: 12px;
+            font-size: 18px; /* 50% LARGER (was 12px) */
+            padding: 4px 10px;
+            border-radius: 6px;
             font-weight: bold;
             color: #ffffff; /* White text */
         }
@@ -781,6 +781,29 @@
             
             #gameContainer {
                 height: 60vh;
+            }
+            
+            /* Adjust ticker for smaller screens */
+            #ticker {
+                height: 100px;
+                font-size: 18px;
+            }
+            
+            #tickerTrack {
+                font-size: 18px;
+                animation: scroll 60s linear infinite;
+            }
+            
+            .crypto-ticker-item .symbol {
+                font-size: 20px;
+            }
+            
+            .crypto-ticker-item .price {
+                font-size: 18px;
+            }
+            
+            .crypto-ticker-item .change {
+                font-size: 14px;
             }
         }
         
@@ -2284,8 +2307,10 @@
     setInterval(fetchTopCryptos, 60000);
 
     /* ===== INITIALIZATION ===== */
-    console.log("ARC Bubble Shooter v3.1 - Enhanced Version");
+    console.log("ARC Bubble Shooter v3.2 - Enhanced Version");
     console.log("Applied adjustments:");
+    console.log("- Ticker text 50% larger (16px → 24px)");
+    console.log("- Ticker speed 25% slower (60s → 80s)");
     console.log("- 25% more power (maxPower: 20 → 25)");
     console.log("- Bullet now ricochets off walls with energy retention");
     console.log("- Multi-burst system: pops 2-6 bubbles based on power level");
@@ -2293,7 +2318,7 @@
     console.log("- Enhanced bullet physics with trails and visual effects");
     console.log("- Bullet shows power percentage when charging");
     console.log("- Modified UI to show multi-burst counter");
-    console.log("- Ticker: Double height, 50% slower, white text");
+    console.log("- Ticker: Double height, 25% slower, 50% larger text, white text");
     console.log("- Complete Web3 game with MetaMask");
     console.log("- Real-time 20 cryptocurrency ticker");
     console.log("- Complete customization system");
