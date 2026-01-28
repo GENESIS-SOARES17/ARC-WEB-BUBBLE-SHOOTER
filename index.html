@@ -783,6 +783,19 @@
                 height: 60vh;
             }
         }
+        
+        /* New: Bullet Glow Animation */
+        @keyframes bulletGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)); }
+            50% { filter: drop-shadow(0 0 25px rgba(255, 255, 255, 1)) drop-shadow(0 0 40px rgba(0, 255, 255, 0.8)); }
+            100% { filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)); }
+        }
+        
+        @keyframes bulletPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -819,6 +832,10 @@
                     <span>⚡ Combo:</span> 
                     <span id="combo" class="val">x1</span>
                 </div>
+                <div class="row">
+                    <span>💥 Multi-Burst:</span> 
+                    <span id="multiburst" class="val">1x</span>
+                </div>
             </div>
 
             <div class="combo-display" id="comboDisplay">
@@ -847,7 +864,7 @@
             </div>
             
             <div class="footer">
-                ARC Testnet v3.0 • Optimized Layout • 80% Transparency
+                ARC Testnet v3.1 • Enhanced Bullet Physics • Multi-Burst System
                 <br>
                 <span id="fps" style="font-family: 'Courier New'; color: rgba(255, 255, 255, 0.8);"></span>
             </div>
@@ -859,7 +876,7 @@
                 <h1 id="statusMsg">🔒 LOCKED</h1>
                 <p>Connect your wallet to unlock the game.</p>
                 <p style="font-size: 0.9em; margin-top: 15px; color: rgba(255, 255, 255, 0.95);">
-                    Use mouse to aim and hold to charge shot power.
+                    Use mouse to aim and hold to charge shot power. Higher power = more bubbles burst!
                 </p>
             </div>
             
@@ -990,7 +1007,8 @@
         balance: 0, 
         level: 1, 
         combo: 1,
-        maxCombo: 1
+        maxCombo: 1,
+        multiBurst: 1
     };
 
     /* ===== NOTIFICATION SYSTEM ===== */
@@ -1017,6 +1035,7 @@
         combo: document.getElementById("combo"),
         comboValue: document.getElementById("comboValue"),
         comboDisplay: document.getElementById("comboDisplay"),
+        multiBurst: document.getElementById("multiburst"),
         power: document.getElementById("powerBar"),
         overlay: document.getElementById("overlay"),
         pauseOverlay: document.getElementById("pauseOverlay"),
@@ -1055,7 +1074,6 @@
 
     function calculateResult() {
         try {
-            // SECURITY FIX: Safe mathematical evaluation
             const result = safeEvaluate(calcExpression.replace('×', '*'));
             calcExpression = result.toString();
             ui.calcDisplay.textContent = calcExpression;
@@ -1073,13 +1091,10 @@
         }
     }
 
-    // Safe evaluation function (replaces eval)
     function safeEvaluate(expression) {
-        // Remove any dangerous characters
         const sanitized = expression.replace(/[^0-9+\-*/().\s]/g, '');
         
         try {
-            // Use Function constructor in strict mode as a safe alternative
             return Function('"use strict"; return (' + sanitized + ')')();
         } catch (e) {
             throw new Error('Invalid mathematical expression');
@@ -1116,6 +1131,7 @@
         ui.level.textContent = state.level;
         ui.combo.textContent = `x${state.combo}`;
         ui.comboValue.textContent = `x${state.combo}`;
+        ui.multiBurst.textContent = `${state.multiBurst}x`;
         
         if (state.combo > 1 && ui.comboDisplay) {
             ui.comboDisplay.textContent = `COMBO x${state.combo}!`;
@@ -1231,7 +1247,7 @@
             initAudio();
             Game.init();
             gameInitialized = true;
-            showNotification("Game started! Hold mouse button to charge shot.", "info");
+            showNotification("Game started! Hold mouse button to charge shot. Higher power = more bubbles burst!", "info");
         }
         
         gameRunning = true;
@@ -1259,6 +1275,7 @@
             state.combo = 1;
             state.balance = 0;
             state.maxCombo = 1;
+            state.multiBurst = 1;
             Game.generateLevel();
             updateUI();
             showNotification("Game restarted!", "info");
@@ -1322,6 +1339,20 @@
                     levelGain.connect(audioCtx.destination);
                     levelOsc.start();
                     levelOsc.stop(now + 0.3);
+                    break;
+                    
+                case 'ricochet':
+                    const ricochetOsc = audioCtx.createOscillator();
+                    const ricochetGain = audioCtx.createGain();
+                    ricochetOsc.type = 'sine';
+                    ricochetOsc.frequency.setValueAtTime(300, now);
+                    ricochetOsc.frequency.exponentialRampToValueAtTime(150, now + 0.1);
+                    ricochetGain.gain.setValueAtTime(0.1, now);
+                    ricochetGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                    ricochetOsc.connect(ricochetGain);
+                    ricochetGain.connect(audioCtx.destination);
+                    ricochetOsc.start();
+                    ricochetOsc.stop(now + 0.1);
                     break;
             }
         } catch (e) {
@@ -1393,13 +1424,17 @@
             dx: 0, 
             dy: 0, 
             active: false, 
-            color: '#fff' 
+            color: '#fff',
+            glowIntensity: 1.0,
+            ricochetCount: 0,
+            maxRicochets: 10
         },
         isCharging: false,
         power: 0,
-        maxPower: 20,
-        maxSpeed: 25,
-        friction: 0.992,
+        maxPower: 25, // INCREASED BY 25% (was 20)
+        maxSpeed: 30, // Increased speed
+        friction: 0.985, // Less friction for more ricochets
+        bounceEnergy: 0.85, // How much energy is retained on bounce
         
         init() {
             this.resize();
@@ -1494,6 +1529,8 @@
             this.bullet.y = canvas.height - 70;
             this.bullet.dx = 0;
             this.bullet.dy = 0;
+            this.bullet.glowIntensity = 1.0;
+            this.bullet.ricochetCount = 0;
         },
         
         update() {
@@ -1502,43 +1539,74 @@
             updateFPS();
             
             if (this.isCharging) {
-                this.power = Math.min(this.maxPower, this.power + 0.25);
+                this.power = Math.min(this.maxPower, this.power + 0.3); // Faster charging
                 ui.power.style.width = `${(this.power / this.maxPower) * 100}%`;
+                
+                // Calculate multi-burst based on power
+                state.multiBurst = 1 + Math.floor(this.power / 5); // 1-6 bursts based on power
+                updateUI();
             }
             
             if (this.bullet.active) {
+                // Apply friction
                 this.bullet.dx *= this.friction;
                 this.bullet.dy *= this.friction;
                 
+                // Limit speed
                 const speed = Math.hypot(this.bullet.dx, this.bullet.dy);
                 if (speed > this.maxSpeed) {
                     this.bullet.dx = (this.bullet.dx / speed) * this.maxSpeed;
                     this.bullet.dy = (this.bullet.dy / speed) * this.maxSpeed;
                 }
                 
+                // Move bullet
                 this.bullet.x += this.bullet.dx;
                 this.bullet.y += this.bullet.dy;
                 
+                // Wall collision with ricochet
+                let bounced = false;
+                
                 if (this.bullet.x - this.bullet.r < 0) {
                     this.bullet.x = this.bullet.r;
-                    this.bullet.dx *= -0.95;
+                    this.bullet.dx = Math.abs(this.bullet.dx) * this.bounceEnergy;
+                    bounced = true;
                 } else if (this.bullet.x + this.bullet.r > canvas.width) {
                     this.bullet.x = canvas.width - this.bullet.r;
-                    this.bullet.dx *= -0.95;
+                    this.bullet.dx = -Math.abs(this.bullet.dx) * this.bounceEnergy;
+                    bounced = true;
                 }
                 
                 if (this.bullet.y - this.bullet.r < 0) {
                     this.bullet.y = this.bullet.r;
-                    this.bullet.dy *= -0.95;
+                    this.bullet.dy = Math.abs(this.bullet.dy) * this.bounceEnergy;
+                    bounced = true;
+                } else if (this.bullet.y > canvas.height) {
+                    this.bullet.y = canvas.height - this.bullet.r;
+                    this.bullet.dy = -Math.abs(this.bullet.dy) * this.bounceEnergy;
+                    bounced = true;
                 }
                 
-                if (this.bullet.y > canvas.height) {
+                if (bounced && this.bullet.ricochetCount < this.bullet.maxRicochets) {
+                    this.bullet.ricochetCount++;
+                    playSound('ricochet');
+                    this.bullet.glowIntensity = Math.min(2.0, this.bullet.glowIntensity + 0.1);
+                }
+                
+                // Stop bullet if it's too slow
+                if (speed < 0.5) {
+                    this.bullet.active = false;
                     state.combo = 1;
-                    this.resetBullet();
-                    showNotification("Combo lost!", "error");
+                    state.multiBurst = 1;
+                    showNotification("Bullet stopped!", "info");
+                    updateUI();
+                    return;
                 }
                 
-                for (let i = this.bubbles.length - 1; i >= 0; i--) {
+                // Bubble collision with multi-burst
+                let bubblesPopped = 0;
+                const maxBubblesToPop = state.multiBurst;
+                
+                for (let i = this.bubbles.length - 1; i >= 0 && bubblesPopped < maxBubblesToPop; i--) {
                     const b = this.bubbles[i];
                     if (!b.active) continue;
                     
@@ -1548,35 +1616,57 @@
                     
                     if (distance < this.bullet.r + b.r) {
                         b.active = false;
-                        this.bullet.active = false;
+                        bubblesPopped++;
                         
                         playSound('pop');
-                        createParticles(b.x, b.y, b.color, 15);
+                        createParticles(b.x, b.y, b.color, 20);
                         
+                        // Calculate burst effect based on remaining power
+                        const burstPower = Math.max(0.5, this.power / this.maxPower);
+                        
+                        // Apply slight deflection to bullet
+                        const deflectionStrength = 0.3 * burstPower;
+                        const normalX = dx / distance;
+                        const normalY = dy / distance;
+                        
+                        this.bullet.dx += normalX * deflectionStrength;
+                        this.bullet.dy += normalY * deflectionStrength;
+                        
+                        // Increase glow intensity on hit
+                        this.bullet.glowIntensity = Math.min(2.5, this.bullet.glowIntensity + 0.2);
+                        
+                        // Add score and balance
                         state.combo++;
                         state.maxCombo = Math.max(state.maxCombo, state.combo);
-                        state.score += 10 * state.combo;
-                        state.balance += 0.0001 * state.combo;
+                        state.score += 15 * state.combo * burstPower;
+                        state.balance += 0.00015 * state.combo * burstPower;
                         
-                        if (state.combo >= 5) {
-                            state.score += 50;
-                            showNotification(`COMBO x${state.combo}! +50 bonus`, "success");
+                        // Show burst notification for multiple bubbles
+                        if (bubblesPopped > 1) {
+                            showNotification(`MULTI-BURST! ${bubblesPopped} bubbles`, "success");
                         }
                         
-                        updateUI();
-                        this.resetBullet();
-                        break;
+                        // Don't break - continue to check for more bubbles
                     }
+                }
+                
+                if (bubblesPopped > 0) {
+                    if (state.combo >= 5) {
+                        state.score += 75;
+                        showNotification(`COMBO x${state.combo}! +75 bonus`, "success");
+                    }
+                    
+                    updateUI();
                 }
             }
             
             const activeBubbles = this.bubbles.filter(b => b.active).length;
             if (activeBubbles === 0) {
                 state.level++;
-                state.score += 100 * state.level;
-                state.balance += 0.001 * state.level;
+                state.score += 150 * state.level;
+                state.balance += 0.0015 * state.level;
                 playSound('level');
-                showNotification(`Level ${state.level} completed! +${100 * state.level} points`, "success");
+                showNotification(`Level ${state.level} completed! +${150 * state.level} points`, "success");
                 this.generateLevel();
                 this.resetBullet();
                 updateUI();
@@ -1641,17 +1731,43 @@
             });
             
             if (this.bullet.active || this.isCharging) {
-                const bulletGlow = ctx.createRadialGradient(
+                const glowIntensity = this.bullet.glowIntensity;
+                
+                // INTENSE GLOW EFFECT
+                const outerGlow = ctx.createRadialGradient(
                     this.bullet.x, this.bullet.y, 0,
-                    this.bullet.x, this.bullet.y, this.bullet.r * 2
+                    this.bullet.x, this.bullet.y, this.bullet.r * 4 * glowIntensity
                 );
-                bulletGlow.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-                bulletGlow.addColorStop(0.5, 'rgba(255, 255, 255, 0.3)');
-                bulletGlow.addColorStop(1, 'transparent');
+                outerGlow.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+                outerGlow.addColorStop(0.2, 'rgba(255, 255, 255, 0.6)');
+                outerGlow.addColorStop(0.4, 'rgba(255, 255, 255, 0.3)');
+                outerGlow.addColorStop(0.6, 'rgba(0, 255, 255, 0.2)');
+                outerGlow.addColorStop(1, 'transparent');
                 
                 ctx.beginPath();
-                ctx.arc(this.bullet.x, this.bullet.y, this.bullet.r * 1.5, 0, Math.PI * 2);
-                ctx.fillStyle = bulletGlow;
+                ctx.arc(this.bullet.x, this.bullet.y, this.bullet.r * 4 * glowIntensity, 0, Math.PI * 2);
+                ctx.fillStyle = outerGlow;
+                ctx.fill();
+                
+                // Inner glow
+                const innerGlow = ctx.createRadialGradient(
+                    this.bullet.x, this.bullet.y, 0,
+                    this.bullet.x, this.bullet.y, this.bullet.r * 2.5
+                );
+                innerGlow.addColorStop(0, 'rgba(255, 255, 255, 1)');
+                innerGlow.addColorStop(0.5, 'rgba(255, 255, 255, 0.5)');
+                innerGlow.addColorStop(0.8, this.bullet.color);
+                innerGlow.addColorStop(1, 'transparent');
+                
+                ctx.beginPath();
+                ctx.arc(this.bullet.x, this.bullet.y, this.bullet.r * 2.5, 0, Math.PI * 2);
+                ctx.fillStyle = innerGlow;
+                ctx.fill();
+                
+                // Main bullet
+                ctx.beginPath();
+                ctx.arc(this.bullet.x, this.bullet.y, this.bullet.r * 1.2, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffffff';
                 ctx.fill();
                 
                 ctx.beginPath();
@@ -1659,10 +1775,25 @@
                 ctx.fillStyle = this.bullet.color;
                 ctx.fill();
                 
+                // Bullet reflection
                 ctx.beginPath();
                 ctx.arc(this.bullet.x - this.bullet.r * 0.3, this.bullet.y - this.bullet.r * 0.3, this.bullet.r * 0.3, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
                 ctx.fill();
+                
+                // Trail effect
+                if (Math.abs(this.bullet.dx) > 0.1 || Math.abs(this.bullet.dy) > 0.1) {
+                    ctx.beginPath();
+                    ctx.moveTo(this.bullet.x, this.bullet.y);
+                    ctx.lineTo(
+                        this.bullet.x - this.bullet.dx * 0.5,
+                        this.bullet.y - this.bullet.dy * 0.5
+                    );
+                    ctx.strokeStyle = `rgba(0, 255, 255, ${0.3 * glowIntensity})`;
+                    ctx.lineWidth = 4;
+                    ctx.lineCap = 'round';
+                    ctx.stroke();
+                }
                 
                 if (this.isCharging) {
                     ctx.beginPath();
@@ -1677,12 +1808,22 @@
             }
             
             if (this.isCharging && this.power > 0) {
-                const powerRadius = this.power * 2;
+                const powerRadius = this.power * 2.5; // Bigger power indicator
                 ctx.beginPath();
                 ctx.arc(this.bullet.x, this.bullet.y, powerRadius, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(255, ${255 - (this.power * 10)}, 0, 0.5)`;
-                ctx.lineWidth = 3;
+                ctx.strokeStyle = `rgba(255, ${255 - (this.power * 8)}, 0, 0.7)`;
+                ctx.lineWidth = 4;
                 ctx.stroke();
+                
+                // Power level text
+                ctx.font = 'bold 16px Arial';
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.fillText(
+                    `POWER: ${Math.round(this.power)}%`,
+                    this.bullet.x,
+                    this.bullet.y - powerRadius - 10
+                );
             }
         },
         
@@ -1715,10 +1856,16 @@
         Game.isCharging = false;
         
         const angle = Math.atan2(mouseY - Game.bullet.y, mouseX - Game.bullet.x);
-        const speed = 5 + Game.power;
+        const speed = 7 + Game.power * 0.9; // More power = more speed
         Game.bullet.dx = Math.cos(angle) * speed;
         Game.bullet.dy = Math.sin(angle) * speed;
         Game.bullet.active = true;
+        Game.bullet.glowIntensity = 1.5; // Start with high glow
+        
+        // Show power level notification
+        const powerPercent = Math.round((Game.power / Game.maxPower) * 100);
+        showNotification(`Shot fired at ${powerPercent}% power! Multi-burst: ${state.multiBurst}x`, "info");
+        
         Game.power = 0;
         ui.power.style.width = "0%";
     });
@@ -2137,21 +2284,19 @@
     setInterval(fetchTopCryptos, 60000);
 
     /* ===== INITIALIZATION ===== */
-    console.log("ARC Bubble Shooter v3.0 - Updated Version");
+    console.log("ARC Bubble Shooter v3.1 - Enhanced Version");
     console.log("Applied adjustments:");
-    console.log("- Changed 'ARC Balance' to 'USDC Balance'");
-    console.log("- 80% transparency applied to all background elements");
-    console.log("- Bubbles optimized to fill entire available space");
-    console.log("- Dynamic bubble sizing based on canvas dimensions");
-    console.log("- Honeycomb layout pattern for better coverage");
-    console.log("- Automatic adjustment on window resize");
-    console.log("- 3-column layout (Controls/Game/Settings)");
+    console.log("- 25% more power (maxPower: 20 → 25)");
+    console.log("- Bullet now ricochets off walls with energy retention");
+    console.log("- Multi-burst system: pops 2-6 bubbles based on power level");
+    console.log("- Intense glowing bullet with dynamic glow intensity");
+    console.log("- Enhanced bullet physics with trails and visual effects");
+    console.log("- Bullet shows power percentage when charging");
+    console.log("- Modified UI to show multi-burst counter");
+    console.log("- Ticker: Double height, 50% slower, white text");
     console.log("- Complete Web3 game with MetaMask");
-    console.log("- Integrated calculator in right panel");
-    console.log("- Real-time 20 cryptocurrency ticker (DOUBLE HEIGHT, 50% SLOWER, WHITE TEXT)");
+    console.log("- Real-time 20 cryptocurrency ticker");
     console.log("- Complete customization system");
-    console.log("- 12 different background themes");
-    console.log("- 4 adjustable visual effects");
     </script>
 </body>
 </html>
