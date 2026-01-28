@@ -27,7 +27,7 @@
         body { 
             margin: 0; 
             font-family: 'Segoe UI', Arial, sans-serif; 
-            background: linear-gradient(135deg, #0a0a0a 0%, #001a1a 100%); 
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.8) 0%, rgba(0, 26, 26, 0.8) 100%); 
             color: #fff; 
             overflow: hidden; 
             transition: background 0.5s ease;
@@ -174,7 +174,7 @@
         }
         
         .combo-display {
-            background: linear-gradient(45deg, rgba(255, 0, 128, 0.7), rgba(0, 255, 170, 0.7));
+            background: linear-gradient(45deg, rgba(255, 0, 128, 0.8), rgba(0, 255, 170, 0.8));
             padding: 8px 12px;
             border-radius: 20px;
             font-weight: bold;
@@ -332,7 +332,7 @@
         .bar { 
             width: 100%; 
             height: 12px; 
-            background: rgba(0, 0, 0, 0.6); 
+            background: rgba(0, 0, 0, 0.8); 
             border-radius: 6px; 
             overflow: hidden; 
             margin-top: 8px; 
@@ -667,7 +667,7 @@
         
         .effect-button {
             padding: 8px;
-            background: linear-gradient(145deg, rgba(0, 10, 20, 0.6), rgba(0, 20, 40, 0.6));
+            background: linear-gradient(145deg, rgba(0, 10, 20, 0.8), rgba(0, 20, 40, 0.8));
             border: 1px solid rgba(0, 255, 170, 0.4);
             border-radius: 6px;
             color: white;
@@ -677,7 +677,7 @@
         }
         
         .effect-button:hover {
-            background: linear-gradient(145deg, rgba(0, 20, 40, 0.8), rgba(0, 30, 60, 0.8));
+            background: linear-gradient(145deg, rgba(0, 20, 40, 0.9), rgba(0, 30, 60, 0.9));
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 255, 170, 0.3);
         }
@@ -802,7 +802,7 @@
                     <span id="wallet" class="val">---</span>
                 </div>
                 <div class="row">
-                    <span>💰 ARC Balance:</span> 
+                    <span>💰 USDC Balance:</span> 
                     <span id="balance" class="val">0.0000</span>
                 </div>
                 <div class="row">
@@ -845,7 +845,7 @@
             </div>
             
             <div class="footer">
-                ARC Testnet v3.0 • Optimized Layout
+                ARC Testnet v3.0 • Optimized Layout • 80% Transparency
                 <br>
                 <span id="fps" style="font-family: 'Courier New'; color: rgba(255, 255, 255, 0.8);"></span>
             </div>
@@ -856,7 +856,7 @@
             <div id="overlay">
                 <h1 id="statusMsg">🔒 LOCKED</h1>
                 <p>Connect your wallet to unlock the game.</p>
-                <p style="font-size: 0.9em; margin-top: 15px; color: rgba(255, 255, 255, 0.9);">
+                <p style="font-size: 0.9em; margin-top: 15px; color: rgba(255, 255, 255, 0.95);">
                     Use mouse to aim and hold to charge shot power.
                 </p>
             </div>
@@ -1541,7 +1541,7 @@
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Gradient background
+            // Gradient background with 80% transparency
             const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
             gradient.addColorStop(0, 'rgba(0, 10, 20, 0.4)');
             gradient.addColorStop(1, 'rgba(0, 20, 40, 0.4)');
@@ -2130,9 +2130,10 @@
     setInterval(fetchTopCryptos, 60000); // Update every minute
 
     /* ===== INITIALIZATION ===== */
-    console.log("ARC Bubble Shooter v3.0 - Triple Layout Initialized!");
+    console.log("ARC Bubble Shooter v3.0 - Updated Version");
     console.log("Applied adjustments:");
-    console.log("- 80% transparency on all panels");
+    console.log("- Changed 'ARC Balance' to 'USDC Balance'");
+    console.log("- 80% transparency applied to all background elements");
     console.log("- Bubbles increased by 50% (27px instead of 18px)");
     console.log("- Bullet increased proportionally (21px instead of 14px)");
     console.log("- 3-column layout (Controls/Game/Settings)");
