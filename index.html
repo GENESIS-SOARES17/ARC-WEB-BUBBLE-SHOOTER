@@ -357,19 +357,19 @@
             color: rgba(255, 255, 255, 0.8);
         }
 
-        /* Cryptocurrency Ticker */
+        /* Cryptocurrency Ticker - MODIFIED */
         #ticker {
             position: absolute; 
             bottom: 0; 
             width: 100%; 
-            height: 50px;
-            background: linear-gradient(90deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.8));
-            border-top: 2px solid rgba(0, 255, 170, 0.6); 
-            padding: 10px 0; 
-            font-size: 13px;
+            height: 100px; /* DOUBLED SIZE (was 50px) */
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(20, 20, 20, 0.9));
+            border-top: 3px solid rgba(0, 255, 170, 0.8); 
+            padding: 15px 0; 
+            font-size: 16px; 
             z-index: 5;
             overflow: hidden;
-            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(10px);
         }
         
@@ -378,11 +378,11 @@
             white-space: nowrap; 
             padding-right: 40px;
             font-family: 'Courier New', monospace;
-            color: rgba(255, 255, 255, 0.95);
-            text-shadow: 0 0 6px rgba(0, 255, 170, 0.5);
+            color: #ffffff; /* WHITE TEXT */
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.7); 
             font-weight: bold;
-            animation: scroll 40s linear infinite;
-            padding-top: 4px;
+            animation: scroll 60s linear infinite; /* 50% SLOWER (was 40s) */
+            padding-top: 10px; 
         }
         
         @keyframes scroll { 
@@ -392,48 +392,50 @@
 
         .crypto-ticker-item {
             display: inline-block;
-            margin: 0 20px;
-            padding: 6px 12px;
-            background: linear-gradient(145deg, rgba(0, 10, 20, 0.8), rgba(0, 20, 40, 0.8));
-            border-radius: 8px;
-            border: 1px solid rgba(0, 255, 170, 0.4);
-            box-shadow: 0 0 15px rgba(0, 255, 170, 0.3);
+            margin: 0 25px; 
+            padding: 8px 15px; 
+            background: linear-gradient(145deg, rgba(0, 10, 20, 0.9), rgba(0, 20, 40, 0.9));
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); 
             transition: all 0.3s ease;
         }
         
         .crypto-ticker-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 20px rgba(0, 255, 170, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.7);
         }
         
         .crypto-ticker-item .symbol {
-            color: var(--primary);
+            color: #ffffff; /* WHITE */
             font-weight: bold;
-            margin-right: 6px;
-            font-size: 14px;
+            margin-right: 8px;
+            font-size: 16px; 
         }
         
         .crypto-ticker-item .price {
-            color: var(--secondary);
-            font-size: 13px;
-        }
-        
-        .crypto-ticker-item .change {
-            margin-left: 8px;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 4px;
+            color: #ffffff; /* WHITE */
+            font-size: 15px;
             font-weight: bold;
         }
         
+        .crypto-ticker-item .change {
+            margin-left: 10px;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #ffffff; /* White text */
+        }
+        
         .crypto-ticker-item .change.positive {
-            color: #00ff88;
-            background: rgba(0, 255, 136, 0.15);
+            background: rgba(0, 255, 136, 0.4); 
+            border: 1px solid rgba(0, 255, 136, 0.6);
         }
         
         .crypto-ticker-item .change.negative {
-            color: #ff4444;
-            background: rgba(255, 68, 68, 0.15);
+            background: rgba(255, 68, 68, 0.4); 
+            border: 1px solid rgba(255, 68, 68, 0.6);
         }
 
         /* FPS Indicator */
@@ -1387,7 +1389,7 @@
         bullet: { 
             x: 0, 
             y: 0, 
-            r: 21, // Increased by 50% (from 14 to 21)
+            r: 21,
             dx: 0, 
             dy: 0, 
             active: false, 
@@ -1417,7 +1419,6 @@
             canvas.style.width = `${canvas.width}px`;
             canvas.style.height = `${canvas.height}px`;
             
-            // Regenerate level when resizing to adjust bubble layout
             if (gameInitialized && gameRunning) {
                 this.generateLevel();
             }
@@ -1427,40 +1428,32 @@
             const colors = ["#00ffaa", "#00aaff", "#ffaa00", "#ff4444", "#aa00ff"];
             this.bubbles = [];
             
-            // Dynamic bubble sizing based on canvas dimensions
             const bubbleRadius = Math.min(27, Math.max(20, Math.floor(Math.min(canvas.width, canvas.height) / 30)));
             
-            // Calculate optimal spacing to fill the entire width
             const bubbleDiameter = bubbleRadius * 2;
-            const horizontalSpacing = bubbleDiameter * 1.1; // 10% spacing between bubbles
-            const verticalSpacing = bubbleDiameter * 0.9; // Slightly tighter vertical spacing
+            const horizontalSpacing = bubbleDiameter * 1.1;
+            const verticalSpacing = bubbleDiameter * 0.9;
             
-            // Calculate number of columns to fill the width
-            const horizontalMargin = Math.max(30, canvas.width * 0.05); // 5% margin or 30px minimum
+            const horizontalMargin = Math.max(30, canvas.width * 0.05);
             const availableWidth = canvas.width - (2 * horizontalMargin);
             const cols = Math.max(5, Math.floor(availableWidth / horizontalSpacing));
             
-            // Recalculate horizontal spacing to perfectly distribute bubbles
             const actualHorizontalSpacing = availableWidth / Math.max(1, cols);
             
-            // Calculate number of rows based on level and canvas height
-            const verticalMargin = Math.max(40, canvas.height * 0.1); // 10% margin or 40px minimum
-            const availableHeight = canvas.height * 0.5; // Use top 50% of canvas for bubbles
+            const verticalMargin = Math.max(40, canvas.height * 0.1);
+            const availableHeight = canvas.height * 0.5;
             const rows = Math.max(3, Math.min(8 + state.level, Math.floor(availableHeight / verticalSpacing)));
             
-            // Center the grid horizontally
             const startX = horizontalMargin + (actualHorizontalSpacing - bubbleDiameter) / 2;
             const startY = verticalMargin;
             
             for(let r = 0; r < rows; r++) {
-                // Offset every other row for honeycomb effect
                 const rowOffset = (r % 2) ? actualHorizontalSpacing / 2 : 0;
                 
                 for(let c = 0; c < cols; c++) {
                     const x = startX + c * actualHorizontalSpacing + rowOffset;
                     const y = startY + r * verticalSpacing;
                     
-                    // Make sure bubbles don't go off screen
                     if (x + bubbleRadius > canvas.width - horizontalMargin) {
                         continue;
                     }
@@ -1475,7 +1468,6 @@
                 }
             }
             
-            // If we have too few bubbles, add an extra row
             if (this.bubbles.length < 15) {
                 for(let c = 0; c < cols; c++) {
                     const x = startX + c * actualHorizontalSpacing + ((rows % 2) ? actualHorizontalSpacing / 2 : 0);
@@ -1596,14 +1588,12 @@
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Gradient background with 80% transparency
             const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
             gradient.addColorStop(0, 'rgba(0, 10, 20, 0.4)');
             gradient.addColorStop(1, 'rgba(0, 20, 40, 0.4)');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Background grid (if enabled)
             if (window.showGrid) {
                 ctx.strokeStyle = 'rgba(0, 255, 170, 0.15)';
                 ctx.lineWidth = 1;
@@ -1621,7 +1611,6 @@
                 }
             }
             
-            // Draw bubbles with optimized layout
             this.bubbles.forEach(b => {
                 if (!b.active) return;
                 
@@ -1639,13 +1628,11 @@
                 ctx.lineWidth = 3;
                 ctx.stroke();
                 
-                // Bubble reflection
                 ctx.beginPath();
                 ctx.arc(b.x - b.r * 0.3, b.y - b.r * 0.3, b.r * 0.3, 0, Math.PI * 2);
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
                 ctx.fill();
                 
-                // Extra glow for larger bubbles
                 ctx.beginPath();
                 ctx.arc(b.x, b.y, b.r * 1.1, 0, Math.PI * 2);
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
@@ -1653,7 +1640,6 @@
                 ctx.stroke();
             });
             
-            // Draw bullet (also increased)
             if (this.bullet.active || this.isCharging) {
                 const bulletGlow = ctx.createRadialGradient(
                     this.bullet.x, this.bullet.y, 0,
@@ -1673,7 +1659,6 @@
                 ctx.fillStyle = this.bullet.color;
                 ctx.fill();
                 
-                // Bullet reflection
                 ctx.beginPath();
                 ctx.arc(this.bullet.x - this.bullet.r * 0.3, this.bullet.y - this.bullet.r * 0.3, this.bullet.r * 0.3, 0, Math.PI * 2);
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
@@ -1819,7 +1804,6 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         
-        // Create particles
         particleBgParticles = [];
         const particleCount = Math.min(60, Math.floor((window.innerWidth * window.innerHeight) / 15000));
         
@@ -1837,22 +1821,18 @@
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Update and draw particles
             for (let particle of particleBgParticles) {
                 particle.x += particle.speedX;
                 particle.y += particle.speedY;
                 
-                // Bounce on edges
                 if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
                 if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
                 
-                // Draw particle
                 ctx.beginPath();
                 ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
                 ctx.fillStyle = particle.color;
                 ctx.fill();
                 
-                // Lines between nearby particles
                 for (let otherParticle of particleBgParticles) {
                     const dx = particle.x - otherParticle.x;
                     const dy = particle.y - otherParticle.y;
@@ -1874,7 +1854,6 @@
         
         animateParticles();
         
-        // Resize
         window.addEventListener('resize', function() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -1895,34 +1874,24 @@
 
     /* ===== CUSTOMIZATION CONTROLS ===== */
     
-    // Background theme
     document.getElementById('gameBgSelect').addEventListener('change', function(e) {
         const themeName = e.target.value;
         const theme = themes[themeName];
         
         if (theme) {
-            // Apply to body
             document.body.style.background = theme.bodyBg;
-            
-            // Apply to game container
             document.getElementById('gameContainer').style.background = theme.gameBg;
-            
-            // Save preference
             localStorage.setItem('arcTheme', themeName);
-            
             showNotification(`Theme "${themeName}" applied!`, "success");
         }
     });
 
-    // Bubble color
     document.getElementById('bubbleColor').addEventListener('input', function(e) {
         const color = e.target.value;
         localStorage.setItem('bubbleColor', color);
-        
         showNotification(`Bubble color changed!`, "success");
     });
 
-    // Animated background
     document.getElementById('toggleParticleBg').addEventListener('click', function() {
         particleBgEnabled = !particleBgEnabled;
         
@@ -1941,7 +1910,6 @@
         localStorage.setItem('particleBgEnabled', particleBgEnabled);
     });
 
-    // Bloom effect
     document.getElementById('toggleBloom').addEventListener('click', function() {
         bloomEnabled = !bloomEnabled;
         
@@ -1960,7 +1928,6 @@
         localStorage.setItem('bloomEnabled', bloomEnabled);
     });
 
-    // Background grid
     document.getElementById('toggleGrid').addEventListener('click', function() {
         showGrid = !showGrid;
         
@@ -1977,7 +1944,6 @@
         localStorage.setItem('showGrid', showGrid);
     });
 
-    // Shadows
     document.getElementById('toggleShadows').addEventListener('click', function() {
         showShadows = !showShadows;
         
@@ -2005,7 +1971,6 @@
         localStorage.setItem('showShadows', showShadows);
     });
 
-    // Reset customization
     document.getElementById('resetCustomization').addEventListener('click', function() {
         if (confirm("Are you sure you want to reset all customizations?")) {
             localStorage.removeItem('arcTheme');
@@ -2015,16 +1980,13 @@
             localStorage.removeItem('showGrid');
             localStorage.removeItem('showShadows');
             
-            // Reset to default
             document.body.style.background = themes.default.bodyBg;
             document.getElementById('gameContainer').style.background = themes.default.gameBg;
             canvas.style.filter = 'none';
             
-            // Reset controls
             document.getElementById('gameBgSelect').value = 'default';
             document.getElementById('bubbleColor').value = '#00ffaa';
             
-            // Remove animated background
             if (particleBgEnabled) {
                 removeParticleBackground();
                 document.getElementById('toggleParticleBg').textContent = '🌟 Animated Background';
@@ -2032,7 +1994,6 @@
                 particleBgEnabled = false;
             }
             
-            // Reset effect buttons
             document.getElementById('toggleBloom').textContent = '💫 Bloom Effect';
             document.getElementById('toggleBloom').classList.remove('active');
             bloomEnabled = false;
@@ -2045,7 +2006,6 @@
             document.getElementById('toggleShadows').classList.remove('active');
             showShadows = true;
             
-            // Restore shadows
             const elements = document.querySelectorAll('.stats, .bar-wrap, .calculator-container, .customization-section');
             elements.forEach(el => {
                 if (el.classList.contains('stats') || el.classList.contains('bar-wrap')) {
@@ -2059,7 +2019,6 @@
         }
     });
 
-    // Load saved preferences
     window.addEventListener('load', function() {
         const savedTheme = localStorage.getItem('arcTheme');
         const savedBubbleColor = localStorage.getItem('bubbleColor');
@@ -2068,19 +2027,16 @@
         const savedGrid = localStorage.getItem('showGrid');
         const savedShadows = localStorage.getItem('showShadows');
         
-        // Load theme
         if (savedTheme && themes[savedTheme]) {
             document.body.style.background = themes[savedTheme].bodyBg;
             document.getElementById('gameContainer').style.background = themes[savedTheme].gameBg;
             document.getElementById('gameBgSelect').value = savedTheme;
         }
         
-        // Load bubble color
         if (savedBubbleColor) {
             document.getElementById('bubbleColor').value = savedBubbleColor;
         }
         
-        // Load Bloom effect
         if (savedBloom === 'true') {
             bloomEnabled = true;
             canvas.style.filter = 'brightness(1.2) contrast(1.1) saturate(1.3)';
@@ -2088,7 +2044,6 @@
             document.getElementById('toggleBloom').classList.add('active');
         }
         
-        // Load animated background
         if (savedParticleBg === 'true') {
             particleBgEnabled = true;
             initParticleBackground();
@@ -2096,14 +2051,12 @@
             document.getElementById('toggleParticleBg').classList.add('active');
         }
         
-        // Load grid
         if (savedGrid === 'false') {
             showGrid = false;
             document.getElementById('toggleGrid').textContent = '🔲 Background Grid';
             document.getElementById('toggleGrid').classList.remove('active');
         }
         
-        // Load shadows
         if (savedShadows === 'false') {
             showShadows = false;
             document.getElementById('toggleShadows').textContent = '👥 Shadows';
@@ -2142,7 +2095,7 @@
             document.getElementById("tickerTrack").innerHTML = tickerHTML;
         } catch(e) { 
             console.error("Error loading cryptocurrencies:", e);
-            // Fallback with static data
+            
             const fallbackCryptos = [
                 {symbol: 'BTC', price: '45,231.50', change: '+2.34'},
                 {symbol: 'ETH', price: '3,128.75', change: '+1.89'},
@@ -2180,9 +2133,8 @@
         }
     }
 
-    // Initialize ticker
     fetchTopCryptos();
-    setInterval(fetchTopCryptos, 60000); // Update every minute
+    setInterval(fetchTopCryptos, 60000);
 
     /* ===== INITIALIZATION ===== */
     console.log("ARC Bubble Shooter v3.0 - Updated Version");
@@ -2196,7 +2148,7 @@
     console.log("- 3-column layout (Controls/Game/Settings)");
     console.log("- Complete Web3 game with MetaMask");
     console.log("- Integrated calculator in right panel");
-    console.log("- Real-time 20 cryptocurrency ticker");
+    console.log("- Real-time 20 cryptocurrency ticker (DOUBLE HEIGHT, 50% SLOWER, WHITE TEXT)");
     console.log("- Complete customization system");
     console.log("- 12 different background themes");
     console.log("- 4 adjustable visual effects");
