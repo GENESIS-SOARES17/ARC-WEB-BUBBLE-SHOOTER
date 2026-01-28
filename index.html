@@ -12,9 +12,9 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: #111;
-            color: #fff;
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #0ff;
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -22,219 +22,343 @@
             overflow: hidden;
         }
 
-        .main-container {
+        .arcade-machine {
             width: 95%;
-            max-width: 1200px;
+            max-width: 1000px;
             height: 90vh;
-            max-height: 800px;
-            border: 3px solid #0066ff;
-            border-radius: 10px;
-            background: #1a1a1a;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
+            max-height: 750px;
+            border: 4px solid #00ffff;
+            border-radius: 15px;
+            background: #111;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: auto 1fr 1fr 1fr;
+            gap: 15px;
+            box-shadow: 
+                0 0 30px rgba(0, 255, 255, 0.5),
+                inset 0 0 30px rgba(0, 255, 255, 0.1);
+            position: relative;
         }
 
-        .header {
+        /* Efeito de brilho nos cantos */
+        .arcade-machine::before,
+        .arcade-machine::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ffff;
+            border-radius: 50%;
+            background: #000;
+            z-index: 2;
+        }
+
+        .arcade-machine::before {
+            top: -10px;
+            left: -10px;
+        }
+
+        .arcade-machine::after {
+            bottom: -10px;
+            right: -10px;
+        }
+
+        .title-section {
+            grid-column: 1 / -1;
             text-align: center;
             padding: 10px 0;
-            border-bottom: 2px solid #333;
-            margin-bottom: 15px;
+            border-bottom: 2px solid #00ffff;
+            margin-bottom: 10px;
         }
 
-        .header h1 {
-            color: #0066ff;
-            font-size: 24px;
+        .title-section h1 {
+            color: #ff00ff;
+            font-size: 32px;
+            text-shadow: 0 0 10px #ff00ff;
+            letter-spacing: 2px;
             margin-bottom: 5px;
         }
 
-        .header p {
-            color: #aaa;
+        .title-section p {
+            color: #0ff;
             font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .content-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .section {
-            flex: 1;
-            min-width: 200px;
-            border: 2px solid #333;
+        .panel {
+            border: 2px solid #00ffff;
             border-radius: 8px;
-            padding: 12px;
-            background: #222;
-            overflow-y: auto;
-            max-height: 500px;
-        }
-
-        .section-title {
-            color: #00ccff;
-            font-size: 16px;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #444;
-            text-align: center;
-        }
-
-        .items-grid {
+            padding: 15px;
+            background: rgba(0, 20, 30, 0.7);
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            box-shadow: inset 0 0 15px rgba(0, 255, 255, 0.2);
         }
 
-        .item {
-            background: #2a2a2a;
-            border: 1px solid #444;
+        .panel-title {
+            color: #ff9900;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .panel-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .control-item {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid #00ffff;
             border-radius: 4px;
-            padding: 8px 10px;
-            text-align: center;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .item:hover {
-            background: #333;
-            border-color: #0066ff;
-        }
-
-        .price-tag {
-            background: linear-gradient(90deg, #0066ff, #0099ff);
-            color: white;
             padding: 10px;
-            border-radius: 5px;
             text-align: center;
+            font-size: 16px;
+            color: #fff;
+            transition: all 0.3s;
+        }
+
+        .control-item:hover {
+            background: rgba(0, 255, 255, 0.3);
+            transform: scale(1.05);
+            box-shadow: 0 0 10px #00ffff;
+        }
+
+        .coinboard {
+            font-size: 48px;
             font-weight: bold;
+            color: #ff9900;
+            text-align: center;
+            text-shadow: 0 0 15px #ff9900;
+        }
+
+        .coinboard-label {
+            font-size: 14px;
+            color: #0ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .time-clock {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .time-item {
+            background: rgba(255, 0, 255, 0.1);
+            border: 1px solid #ff00ff;
+            border-radius: 4px;
+            padding: 8px;
+            text-align: center;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+        }
+
+        .total-usdc {
+            grid-column: 1 / -1;
+            background: linear-gradient(90deg, #00ffff, #ff00ff);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
             margin-top: 10px;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+
+        .total-usdc span {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+        }
+
+        .calculator-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .calculator-btn {
+            background: rgba(255, 255, 0, 0.1);
+            border: 1px solid #ffff00;
+            border-radius: 4px;
+            padding: 12px;
+            text-align: center;
+            color: #ffff00;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .calculator-btn:hover {
+            background: rgba(255, 255, 0, 0.3);
+            box-shadow: 0 0 10px #ffff00;
+        }
+
+        .setting-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .setting-option {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            padding: 10px;
+            text-align: center;
+            color: #00ff00;
             font-size: 14px;
         }
 
-        /* Controles específicos */
-        #game-controls {
-            border-color: #0066ff;
+        /* Layout específico para cada painel */
+        .game-controls {
+            grid-column: 1 / 3;
+            grid-row: 2 / 4;
         }
 
-        #game-controls .section-title {
-            color: #00ccff;
+        .coinboard-panel {
+            grid-column: 3;
+            grid-row: 2;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* Ajustes para garantir que tudo caiba */
-        @media (max-height: 700px) {
-            .main-container {
-                height: 95vh;
-                padding: 10px;
-            }
-            
-            .section {
-                padding: 8px;
-                max-height: 400px;
-            }
-            
-            .item {
-                padding: 6px 8px;
-                font-size: 13px;
-            }
+        .pen-time-clock {
+            grid-column: 4;
+            grid-row: 2 / 4;
         }
 
-        @media (max-width: 1000px) {
-            .content-wrapper {
-                flex-direction: column;
+        .calculator-setting {
+            grid-column: 3;
+            grid-row: 3;
+        }
+
+        /* Responsividade */
+        @media (max-width: 900px) {
+            .arcade-machine {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: auto repeat(3, auto);
+                height: auto;
+                max-height: 90vh;
                 overflow-y: auto;
             }
-            
-            .section {
-                min-height: auto;
-                max-height: none;
+
+            .game-controls {
+                grid-column: 1 / 3;
+                grid-row: 2;
             }
-            
-            .items-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-                gap: 8px;
+
+            .coinboard-panel {
+                grid-column: 1;
+                grid-row: 3;
+            }
+
+            .pen-time-clock {
+                grid-column: 2;
+                grid-row: 3;
+            }
+
+            .calculator-setting {
+                grid-column: 1 / 3;
+                grid-row: 4;
+            }
+
+            .total-usdc {
+                grid-column: 1 / 3;
+                grid-row: 5;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .arcade-machine {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .title-section h1 {
+                font-size: 24px;
+            }
+
+            .panel {
+                grid-column: 1 !important;
+                grid-row: auto !important;
+            }
+
+            .coinboard {
+                font-size: 36px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <div class="header">
+    <div class="arcade-machine">
+        <div class="title-section">
             <h1>ARC BUBBLE SHOOTER</h1>
-            <p>Polaroid, 8.0mm, 5x4 (35mm) / High-speed</p>
+            <p>Power on, ball-up, go to the left (right for bonus round)</p>
         </div>
-        
-        <div class="content-wrapper">
-            <!-- GAME CONTROLS -->
-            <div class="section" id="game-controls">
-                <h2 class="section-title">GAME CONTROLS</h2>
-                <div class="items-grid">
-                    <div class="item">PLAY</div>
-                    <div class="item">RESET</div>
-                    <div class="item">PAUSE</div>
-                    <div class="item">SHOT</div>
-                    <div class="item">CLEAR</div>
-                    <div class="item">FULL SCREEN</div>
-                    <div class="item">ZOOM</div>
-                    <div class="item">MUTE</div>
-                    <div class="item">HIDE</div>
-                    <div class="item">REPLAY</div>
-                    <div class="item">RECORD</div>
-                    <div class="item">STOP</div>
-                    <div class="item">START</div>
-                </div>
-                <div class="price-tag">TOTAL VIDEOCAMERA: 0.072 USD/C</div>
+
+        <div class="panel game-controls">
+            <div class="panel-title">GAME CONTROLS</div>
+            <div class="panel-content">
+                <div class="control-item">1.00</div>
+                <div class="control-item">2.00</div>
+                <div class="control-item">3.00</div>
+                <div class="control-item">4.00</div>
+                <div class="control-item">5.00</div>
+                <div class="control-item">6.00</div>
             </div>
-            
-            <!-- EJECT SHOTTER -->
-            <div class="section">
-                <h2 class="section-title">EJECT SHOTTER</h2>
-                <div class="items-grid">
-                    <div class="item">CAMERA</div>
-                    <div class="item">LENS</div>
-                    <div class="item">FILTER</div>
-                    <div class="item">BATTERY</div>
-                    <div class="item">CHARGING</div>
-                    <div class="item">MENU</div>
-                    <div class="item">SETTINGS</div>
-                </div>
+        </div>
+
+        <div class="panel coinboard-panel">
+            <div class="coinboard-label">COINBOARD</div>
+            <div class="coinboard">22</div>
+        </div>
+
+        <div class="panel pen-time-clock">
+            <div class="panel-title">PEN-TIME CLOCK</div>
+            <div class="panel-content time-clock">
+                <div class="time-item">0:00</div>
+                <div class="time-item">1:00</div>
+                <div class="time-item">2:00</div>
+                <div class="time-item">3:00</div>
+                <div class="time-item">4:00</div>
+                <div class="time-item">5:00</div>
+                <div class="time-item">6:00</div>
             </div>
-            
-            <!-- CALCULATOR -->
-            <div class="section">
-                <h2 class="section-title">CALCULATOR</h2>
-                <div class="items-grid">
-                    <div class="item">DIGITS</div>
-                    <div class="item">ADDITIONAL</div>
-                    <div class="item">EQUALS</div>
-                    <div class="item">ENTER</div>
-                    <div class="item">EXIT</div>
-                </div>
-            </div>
-            
-            <!-- SETTINGS & OPTIMIZATION -->
-            <div class="section">
-                <h2 class="section-title">SETTINGS</h2>
-                <div class="items-grid">
-                    <div class="item">Shutter Speed</div>
-                    <div class="item">Aperture</div>
-                    <div class="item">ISO</div>
-                    <div class="item">Exposure Time</div>
-                </div>
+        </div>
+
+        <div class="panel calculator-setting">
+            <div class="panel-title">CALCULATOR & SETTING</div>
+            <div class="panel-content">
+                <div class="calculator-btn">CALCULATOR</div>
+                <div class="calculator-btn">SETTING</div>
                 
-                <h2 class="section-title" style="margin-top: 15px;">OPTIMIZATION</h2>
-                <div class="items-grid">
-                    <div class="item">Rate/Frame Rate</div>
-                    <div class="item">Red/Blue LED</div>
-                    <div class="item">Low Light</div>
-                    <div class="item">Flashlight</div>
-                    <div class="item">Full</div>
-                    <div class="item">Blur Test</div>
+                <div class="setting-options">
+                    <div class="setting-option">Coinbase</div>
+                    <div class="setting-option">Ethereum</div>
+                    <div class="setting-option">Gif</div>
+                    <div class="setting-option">Other</div>
                 </div>
             </div>
+        </div>
+
+        <div class="total-usdc">
+            <span>TOTAL USDC LAPSED: 0.072 USDC</span>
         </div>
     </div>
 </body>
