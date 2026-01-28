@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARC BUBBLE SHOOTER - Controles</title>
+    <title>ARC BUBBLE SHOOTER</title>
     <style>
         * {
             margin: 0;
@@ -12,251 +12,228 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 100%);
-            color: #e0e0e0;
-            padding: 20px;
-            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background: #111;
+            color: #fff;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1300px;
-            background-color: rgba(20, 20, 30, 0.9);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-            border: 2px solid #0066ff;
-            position: relative;
             overflow: hidden;
         }
 
-        .container::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, #0066ff, #00ccff, #0066ff);
-            border-radius: 22px;
-            z-index: -1;
-            animation: borderGlow 4s ease-in-out infinite alternate;
-        }
-
-        @keyframes borderGlow {
-            0% { opacity: 0.7; }
-            100% { opacity: 1; }
+        .main-container {
+            width: 95%;
+            max-width: 1200px;
+            height: 90vh;
+            max-height: 800px;
+            border: 3px solid #0066ff;
+            border-radius: 10px;
+            background: #1a1a1a;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #0066ff;
+            padding: 10px 0;
+            border-bottom: 2px solid #333;
+            margin-bottom: 15px;
         }
 
         .header h1 {
-            font-size: 2.8rem;
-            color: #00ccff;
-            text-shadow: 0 0 10px rgba(0, 204, 255, 0.7);
-            margin-bottom: 10px;
-            letter-spacing: 1px;
+            color: #0066ff;
+            font-size: 24px;
+            margin-bottom: 5px;
         }
 
         .header p {
-            font-size: 1.1rem;
             color: #aaa;
-            letter-spacing: 0.5px;
+            font-size: 14px;
         }
 
-        .controls-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
+        .content-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            flex: 1;
+            overflow: hidden;
         }
 
-        .control-section {
-            background-color: rgba(30, 30, 50, 0.8);
-            border-radius: 15px;
-            padding: 20px;
-            border-left: 5px solid #0066ff;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .control-section:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 102, 255, 0.3);
+        .section {
+            flex: 1;
+            min-width: 200px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            background: #222;
+            overflow-y: auto;
+            max-height: 500px;
         }
 
         .section-title {
-            font-size: 1.5rem;
             color: #00ccff;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #333;
+            font-size: 16px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #444;
+            text-align: center;
+        }
+
+        .items-grid {
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            gap: 6px;
         }
 
-        .section-title::before {
-            content: '▸';
-            margin-right: 10px;
-            font-size: 1.8rem;
-        }
-
-        .items-list {
-            list-style-type: none;
-        }
-
-        .items-list li {
-            padding: 10px 15px;
-            margin-bottom: 8px;
-            background-color: rgba(50, 50, 70, 0.6);
-            border-radius: 8px;
+        .item {
+            background: #2a2a2a;
             border: 1px solid #444;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
+            border-radius: 4px;
+            padding: 8px 10px;
+            text-align: center;
+            font-size: 14px;
+            transition: all 0.2s;
         }
 
-        .items-list li:hover {
-            background-color: rgba(0, 102, 255, 0.2);
-            border-color: #00ccff;
-            transform: translateX(5px);
-        }
-
-        .items-list li::before {
-            content: '•';
-            color: #00ccff;
-            margin-right: 10px;
-            font-size: 1.5rem;
+        .item:hover {
+            background: #333;
+            border-color: #0066ff;
         }
 
         .price-tag {
-            display: block;
-            text-align: center;
-            margin-top: 25px;
-            padding: 12px;
-            background: linear-gradient(90deg, #0066ff, #00ccff);
-            border-radius: 10px;
-            font-size: 1.3rem;
-            font-weight: bold;
+            background: linear-gradient(90deg, #0066ff, #0099ff);
             color: white;
-            letter-spacing: 1px;
-            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.4);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 14px;
         }
 
-        @media (max-width: 1200px) {
-            .controls-grid {
-                grid-template-columns: repeat(2, 1fr);
+        /* Controles específicos */
+        #game-controls {
+            border-color: #0066ff;
+        }
+
+        #game-controls .section-title {
+            color: #00ccff;
+        }
+
+        /* Ajustes para garantir que tudo caiba */
+        @media (max-height: 700px) {
+            .main-container {
+                height: 95vh;
+                padding: 10px;
+            }
+            
+            .section {
+                padding: 8px;
+                max-height: 400px;
+            }
+            
+            .item {
+                padding: 6px 8px;
+                font-size: 13px;
             }
         }
 
-        @media (max-width: 768px) {
-            .controls-grid {
-                grid-template-columns: 1fr;
+        @media (max-width: 1000px) {
+            .content-wrapper {
+                flex-direction: column;
+                overflow-y: auto;
             }
             
-            .header h1 {
-                font-size: 2.2rem;
+            .section {
+                min-height: auto;
+                max-height: none;
             }
             
-            .container {
-                padding: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .section-title {
-                font-size: 1.3rem;
-            }
-            
-            .items-list li {
-                padding: 8px 12px;
-                font-size: 0.95rem;
+            .items-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 8px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="main-container">
         <div class="header">
             <h1>ARC BUBBLE SHOOTER</h1>
             <p>Polaroid, 8.0mm, 5x4 (35mm) / High-speed</p>
         </div>
         
-        <div class="controls-grid">
-            <div class="control-section">
+        <div class="content-wrapper">
+            <!-- GAME CONTROLS -->
+            <div class="section" id="game-controls">
                 <h2 class="section-title">GAME CONTROLS</h2>
-                <ul class="items-list">
-                    <li>PLAY</li>
-                    <li>RESET</li>
-                    <li>PAUSE</li>
-                    <li>SHOT</li>
-                    <li>CLEAR</li>
-                    <li>FULL SCREEN</li>
-                    <li>ZOOM</li>
-                    <li>MUTE</li>
-                    <li>HIDE</li>
-                    <li>REPLAY</li>
-                    <li>RECORD</li>
-                    <li>STOP</li>
-                    <li>START</li>
-                </ul>
+                <div class="items-grid">
+                    <div class="item">PLAY</div>
+                    <div class="item">RESET</div>
+                    <div class="item">PAUSE</div>
+                    <div class="item">SHOT</div>
+                    <div class="item">CLEAR</div>
+                    <div class="item">FULL SCREEN</div>
+                    <div class="item">ZOOM</div>
+                    <div class="item">MUTE</div>
+                    <div class="item">HIDE</div>
+                    <div class="item">REPLAY</div>
+                    <div class="item">RECORD</div>
+                    <div class="item">STOP</div>
+                    <div class="item">START</div>
+                </div>
                 <div class="price-tag">TOTAL VIDEOCAMERA: 0.072 USD/C</div>
             </div>
             
-            <div class="control-section">
+            <!-- EJECT SHOTTER -->
+            <div class="section">
                 <h2 class="section-title">EJECT SHOTTER</h2>
-                <ul class="items-list">
-                    <li>CAMERA</li>
-                    <li>LENS</li>
-                    <li>FILTER</li>
-                    <li>BATTERY</li>
-                    <li>CHARGING</li>
-                    <li>MENU</li>
-                    <li>SETTINGS</li>
-                </ul>
+                <div class="items-grid">
+                    <div class="item">CAMERA</div>
+                    <div class="item">LENS</div>
+                    <div class="item">FILTER</div>
+                    <div class="item">BATTERY</div>
+                    <div class="item">CHARGING</div>
+                    <div class="item">MENU</div>
+                    <div class="item">SETTINGS</div>
+                </div>
             </div>
             
-            <div class="control-section">
+            <!-- CALCULATOR -->
+            <div class="section">
                 <h2 class="section-title">CALCULATOR</h2>
-                <ul class="items-list">
-                    <li>DIGITS</li>
-                    <li>ADDITIONAL</li>
-                    <li>EQUALS</li>
-                    <li>ENTER</li>
-                    <li>EXIT</li>
-                </ul>
+                <div class="items-grid">
+                    <div class="item">DIGITS</div>
+                    <div class="item">ADDITIONAL</div>
+                    <div class="item">EQUALS</div>
+                    <div class="item">ENTER</div>
+                    <div class="item">EXIT</div>
+                </div>
             </div>
             
-            <div class="control-section">
+            <!-- SETTINGS & OPTIMIZATION -->
+            <div class="section">
                 <h2 class="section-title">SETTINGS</h2>
-                <ul class="items-list">
-                    <li>Shutter Speed</li>
-                    <li>Aperture</li>
-                    <li>ISO</li>
-                    <li>Exposure Time</li>
-                </ul>
+                <div class="items-grid">
+                    <div class="item">Shutter Speed</div>
+                    <div class="item">Aperture</div>
+                    <div class="item">ISO</div>
+                    <div class="item">Exposure Time</div>
+                </div>
                 
-                <h2 class="section-title">OPTIMIZATION</h2>
-                <ul class="items-list">
-                    <li>Rate/Frame Rate</li>
-                    <li>Red/Blue LED</li>
-                    <li>Low Light</li>
-                    <li>Flashlight</li>
-                    <li>Full</li>
-                    <li>Blur Test</li>
-                </ul>
+                <h2 class="section-title" style="margin-top: 15px;">OPTIMIZATION</h2>
+                <div class="items-grid">
+                    <div class="item">Rate/Frame Rate</div>
+                    <div class="item">Red/Blue LED</div>
+                    <div class="item">Low Light</div>
+                    <div class="item">Flashlight</div>
+                    <div class="item">Full</div>
+                    <div class="item">Blur Test</div>
+                </div>
             </div>
         </div>
     </div>
